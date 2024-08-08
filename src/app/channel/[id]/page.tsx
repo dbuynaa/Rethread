@@ -8,20 +8,19 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 import dayjs from "dayjs";
 import React, { useState } from "react";
+import { AddPostModal } from "../components/postCreateModal";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [channelDetail] = api.channel.channel.useSuspenseQuery({
+  const [channelDetail] = api.channel.channelDetail.useSuspenseQuery({
     id: params.id,
   });
 
@@ -41,10 +40,7 @@ export default function Page({ params }: { params: { id: string } }) {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mr-2"
             />
-            <Button variant="secondary">
-              <Icons.add />
-              New Post
-            </Button>
+            <AddPostModal channelId={channelDetail.id} />
           </div>
         </CardHeader>
         <CardContent>

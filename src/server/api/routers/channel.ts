@@ -20,7 +20,7 @@ export const channelRouter = createTRPCRouter({
       
     return channel ?? null;
   }),
-  channel: publicProcedure
+  channelDetail: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const channel = await ctx.db.channel.findUnique({

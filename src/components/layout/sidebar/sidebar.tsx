@@ -9,6 +9,7 @@ import { api } from "@/trpc/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 type SidebarProps = {
   className?: string;
@@ -26,21 +27,23 @@ export default function Sidebar({ className }: SidebarProps) {
   }: {
     name: string;
     id: string;
-    image?: string;
+    image: string | null;
   }) => (
-    <div
+    <Button
+      variant="ghost"
+      size="lg"
       onClick={() => router.replace(`/channel/${id}`)}
-      className="cursor-pointer px-4 py-2 text-secondary-foreground"
+      className="cursor-pointer justify-start overflow-hidden px-4 py-2 text-secondary-foreground"
     >
-      <div className="flex items-center gap-4 overflow-hidden">
+      <div className="flex items-center justify-start gap-4 overflow-hidden">
         {image ? (
           <Image src={image} alt={name} />
         ) : (
-          <span className="text-3xl">#</span>
+          <span className="text-2xl">#</span>
         )}
         {name}
       </div>
-    </div>
+    </Button>
   );
 
   return (
@@ -76,12 +79,13 @@ export default function Sidebar({ className }: SidebarProps) {
       />
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {channels.map((channel) => (
               <ChannelItem
                 key={channel.id}
                 name={channel.name}
                 id={channel.id}
+                image={channel.image}
               />
             ))}
           </div>
