@@ -5,7 +5,7 @@ import {
     createTRPCRouter,
     protectedProcedure,
     publicProcedure,
-  } from "~/server/api/trpc";
+  } from "@/server/api/trpc";
 
 export const channelRouter = createTRPCRouter({
     getChannels: publicProcedure
@@ -20,6 +20,16 @@ export const channelRouter = createTRPCRouter({
       
     return channel ?? null;
   }),
+  channel: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const channel = await ctx.db.channel.findUnique({
+        where: { id: input.id },
+        include: { posts: true },
+      });
+      if(!channel) throw new Error('Channel not found')
+      return channel;
+    }),
    create: protectedProcedure
      .input(z.object({ name: z.string().min(1) }))
      .mutation(async ({ ctx, input }) => {

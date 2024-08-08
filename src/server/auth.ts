@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
   getServerSession,
+  
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
@@ -8,8 +9,8 @@ import { type Adapter } from "next-auth/adapters";
 // import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
 
-import { env } from "~/env";
-import { db } from "~/server/db";
+import { env } from "@/env";
+import { db } from "@/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -39,12 +40,6 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    // async signIn({ account, profile }) {
-    //   if (account?.provider === "google") {
-    //     return profile.email_verified && profile.email.endsWith("@example.com")
-    //   }
-    //   return true // Do different verification for other providers that don't have `email_verified`
-    // },
     session: ({ session, user }) => ({
       ...session,
       user: {
@@ -55,11 +50,6 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
-    // DiscordProvider({
-    //   clientId: env.DISCORD_CLIENT_ID,
-    //   clientSecret: env.DISCORD_CLIENT_SECRET,
-    // }),s
-
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
@@ -81,6 +71,10 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/",
+  },
 };
 
 /**
