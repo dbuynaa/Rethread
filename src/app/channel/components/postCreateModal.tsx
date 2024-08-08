@@ -30,8 +30,13 @@ import {
 export function AddPostModal({ channelId }: { channelId: string }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const utils = api.useUtils();
 
-  const { isPending, mutate: createPost } = api.post.create.useMutation();
+  const { isPending, mutate: createPost } = api.post.create.useMutation({
+    onSuccess: async () => {
+      await utils.post.invalidate();
+    },
+  });
 
   const formSchema = z.object({
     name: z.string().min(2).max(50),
@@ -50,6 +55,7 @@ export function AddPostModal({ channelId }: { channelId: string }) {
       { ...values, channelId },
       {
         onSuccess() {
+          setOpen(false);
           toast({
             title: "Post created",
             description: "Your post has been created.",
@@ -57,6 +63,7 @@ export function AddPostModal({ channelId }: { channelId: string }) {
           });
         },
         onError(error) {
+          setOpen(false);
           toast({
             title: "Error",
             description: error.message,
@@ -84,11 +91,9 @@ export function AddPostModal({ channelId }: { channelId: string }) {
               <FormInput
                 form={form}
                 name="name"
-                className="grid grid-cols-4 items-center gap-4"
-                props={{
+                inputProps={{
                   className: "col-span-4",
-                  placeholder:
-                    "Introduce the problem and expand on what you put in the title",
+                  placeholder: "What's on your mind? Add a title to your post.",
                 }}
                 label="Title"
               />
@@ -96,13 +101,13 @@ export function AddPostModal({ channelId }: { channelId: string }) {
                 control={form.control}
                 name="content"
                 render={({ field }) => (
-                  <FormItem className="grid grid-cols-4 items-start gap-4">
-                    <Label>name</Label>
+                  <FormItem>
+                    <Label>Description</Label>
                     <FormControl>
                       <Textarea
                         id="description"
                         className="col-span-4"
-                        placeholder="Introduce the problem and expand on what you put in the title"
+                        placeholder="Add a description to your post..."
                         {...field}
                       />
                     </FormControl>

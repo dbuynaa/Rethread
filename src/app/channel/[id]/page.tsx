@@ -1,9 +1,6 @@
 "use client";
 
-import { Icons } from "@/components/icons";
 import PageContainer from "@/components/layout/page-container";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,6 +13,7 @@ import { api } from "@/trpc/react";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import { AddPostModal } from "../components/postCreateModal";
+import { CardPost } from "@/components/card-post";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,33 +42,10 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
         </CardHeader>
         <CardContent>
-          {channelDetail.posts.map((message) => (
-            <Card key={message.id} className="mb-4">
-              <CardHeader>
-                <Avatar>
-                  <AvatarImage src="/avatar.png" alt="Avatar" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <CardTitle className="ml-2">Claude</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{message.content}</CardDescription>
-              </CardContent>
-            </Card>
+          {channelDetail.posts.map((post) => (
+            <CardPost key={post.id} post={post} />
           ))}
         </CardContent>
-        {/* <CardFooter>
-          <Textarea
-            placeholder="Enter your message..."
-            //   value={newMessage}
-            //   onChange={(e) => setNewMessage(e.target.value)}
-            rows={2}
-            className="mr-2"
-          />
-          <Button>
-            <Icons.send />
-          </Button>
-        </CardFooter> */}
       </Card>
     </PageContainer>
   );

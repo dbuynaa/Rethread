@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
 
 type SidebarProps = {
   className?: string;
@@ -33,7 +34,7 @@ export default function Sidebar({ className }: SidebarProps) {
       variant="ghost"
       size="lg"
       onClick={() => router.replace(`/channel/${id}`)}
-      className="cursor-pointer justify-start overflow-hidden px-4 py-2 text-secondary-foreground"
+      className="justify-start overflow-hidden px-4 py-2 text-secondary-foreground"
     >
       <div className="flex items-center justify-start gap-4 overflow-hidden">
         {image ? (
@@ -77,21 +78,23 @@ export default function Sidebar({ className }: SidebarProps) {
         )}
         onClick={toggle}
       />
-      <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
-          <div className="flex flex-col gap-3">
-            {channels.map((channel) => (
-              <ChannelItem
-                key={channel.id}
-                name={channel.name}
-                id={channel.id}
-                image={channel.image}
-              />
-            ))}
+      <div className="flex flex-col gap-6 px-3 py-6">
+        <Button
+          variant="ghost"
+          size="lg"
+          className="justify-start overflow-hidden px-3 py-2 text-secondary-foreground"
+        >
+          <div className="flex items-center justify-start gap-4 overflow-hidden">
+            <span>
+              <Icons.add className="h-6 w-6" />
+            </span>
+            <p> Create Channel</p>
           </div>
-          {/* <div className="mt-3 space-y-1">
-            <DashboardNav items={navItems} />
-          </div> */}
+        </Button>
+        <div className="flex flex-col gap-3">
+          {channels.map((channel) => (
+            <ChannelItem key={channel.id} {...channel} />
+          ))}
         </div>
       </div>
     </aside>

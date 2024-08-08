@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { z } from "zod";
+import { type z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { CreateChannelInput } from "@/server/api/types";
 
 export function Channels() {
   const [channels] = api.channel.getChannels.useSuspenseQuery();
@@ -24,25 +25,21 @@ export function Channels() {
   const { toast } = useToast();
 
   const utils = api.useUtils();
-  const createChannel = api.channel.create.useMutation({
+  const { mutate: createChannel, isPending } = api.channel.create.useMutation({
     onSuccess: async () => {
       await utils.channel.invalidate();
     },
   });
 
-  const formSchema = z.object({
-    name: z.string().min(2).max(50),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof CreateChannelInput>>({
+    resolver: zodResolver(CreateChannelInput),
     defaultValues: {
       name: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    createChannel.mutate(values, {
+  function onSubmit(values: z.infer<typeof CreateChannelInput>) {
+    createChannel(values, {
       onError(error) {
         toast({
           title: "Error",
@@ -80,7 +77,9 @@ export function Channels() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button disabled={isPending} type="submit">
+          Submit
+        </Button>
       </form>
     </Form>
   );

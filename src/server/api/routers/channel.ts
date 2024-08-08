@@ -6,10 +6,11 @@ import {
     protectedProcedure,
     publicProcedure,
   } from "@/server/api/trpc";
+import { CreateChannelInput } from "../types";
 
 export const channelRouter = createTRPCRouter({
     getChannels: publicProcedure
-    .input(z.object({ take: z.number().optional(), skip: z.number().optional() }).optional())
+    .input( z.object({ take: z.number().optional(), skip: z.number().optional() }).optional())
     .query(async ({ ctx, input }) => {
     const {take, skip} = input ?? {}
     const channel = await ctx.db.channel.findMany({
@@ -31,7 +32,7 @@ export const channelRouter = createTRPCRouter({
       return channel;
     }),
    create: protectedProcedure
-     .input(z.object({ name: z.string().min(1) }))
+     .input(CreateChannelInput)
      .mutation(async ({ ctx, input }) => {
       console.log('ctx.session.user.id', ctx.session.user.id)
        return ctx.db.channel.create({
@@ -43,8 +44,4 @@ export const channelRouter = createTRPCRouter({
        });
      
      }),
- 
-   getSecretMessage: protectedProcedure.query(() => {
-     return "you can now see this secret message!";
-   }),
  })
