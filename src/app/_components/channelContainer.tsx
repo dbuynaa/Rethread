@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { api } from "@/trpc/react";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { CreatePostModal } from "../channel/components/postCreateModal";
 import { PostsContainer } from "./postsContainer";
 

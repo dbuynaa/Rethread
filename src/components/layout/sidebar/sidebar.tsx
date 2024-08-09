@@ -8,7 +8,6 @@ import { useSidebar } from "@/hooks/useSidebar";
 import { api } from "@/trpc/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CreateChannelModal } from "@/app/channel/components/channelCreateModal";
 import { Avatar } from "@/components/ui/avatar";

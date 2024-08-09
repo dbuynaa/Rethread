@@ -8,14 +8,7 @@ import { api } from "@/trpc/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import {
-  MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
-  LoaderCircle,
-  ShieldQuestionIcon,
-  MessageCircleQuestionIcon,
-} from "lucide-react";
+import { LoaderCircle, MessageCircleQuestionIcon } from "lucide-react";
 import Vote from "@/components/core/vote";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { Icons } from "@/components/icons";
