@@ -11,12 +11,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CreateChannelModal } from "@/app/channel/components/channelCreateModal";
+import { Avatar } from "@/components/ui/avatar";
+import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 type SidebarProps = {
   className?: string;
 };
 
-export default function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className }: SidebarProps) {
   const { isMinimized, toggle } = useSidebar();
   const [channels] = api.channel.getChannels.useSuspenseQuery();
   const router = useRouter();
@@ -34,14 +36,15 @@ export default function Sidebar({ className }: SidebarProps) {
       variant="ghost"
       size="lg"
       onClick={() => router.replace(`/channel/${id}`)}
-      className="justify-start overflow-hidden px-4 py-2"
+      className="justify-start overflow-hidden p-0"
     >
-      <div className="flex items-center justify-start gap-4 overflow-hidden">
-        {image ? (
-          <Image src={image} alt={name} />
-        ) : (
-          <span className="text-2xl">#</span>
-        )}
+      <div className="flex items-center justify-start gap-4 overflow-hidden py-2">
+        <Avatar className="ml-4 mr-3 h-10 w-10">
+          <AvatarImage src={image ?? ""} alt={name ?? ""} />
+          <AvatarFallback className="text-2xl font-bold text-primary">
+            {name?.[0]}
+          </AvatarFallback>
+        </Avatar>
         {name}
       </div>
     </Button>

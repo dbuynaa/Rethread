@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { MobileSidebar } from "../sidebar/mobile-sidebar";
 import { UserNav } from "./components/user-nav";
 
-export default function Header() {
+export function Header() {
   return (
     <header className="sticky inset-x-0 top-0 w-full">
       <nav className="flex items-center justify-between px-4 py-2 md:justify-end">

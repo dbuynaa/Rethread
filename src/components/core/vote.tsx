@@ -33,12 +33,11 @@ const Vote = () => {
   };
 
   return (
-    <div className="flex items-center justify-between text-center">
+    <div className="z-10 flex w-fit items-center justify-between text-center">
       <Button
         variant={userVote === "up" ? "default" : "ghost"}
         size="icon"
         onClick={handleUpvote}
-        // className={userVote === "up" ? "text-blue-500" : ""}
       >
         <ArrowUp className="h-5 w-5" />
       </Button>
@@ -47,7 +46,6 @@ const Vote = () => {
         variant={userVote === "down" ? "destructive" : "ghost"}
         size="icon"
         onClick={handleDownvote}
-        // className={userVote === "down" ? "text-red-500" : ""}
       >
         <ArrowDown className="h-5 w-5" />
       </Button>

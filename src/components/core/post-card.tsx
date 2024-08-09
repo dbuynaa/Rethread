@@ -8,20 +8,37 @@ import {
   CardTitle,
 } from "../ui/card";
 import VotePost from "./vote";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime"; // Import the plugin
+dayjs.extend(relativeTime);
 
-export const PostCard = ({ post }: { post: Post }) => {
+export const PostCard = ({
+  post,
+  onClick,
+}: {
+  post: Post;
+  onClick: (id: string) => void;
+}) => {
+  // Extend dayjs with the plugin
+
   return (
-    <Card className="mb-4">
+    <Card
+      onClick={() => onClick(post.id)}
+      key={post.id}
+      // className="relative mb-4 cursor-pointer transition-all duration-300 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+      className="mb-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+    >
       <CardHeader>
         <CardTitle>{post.name}</CardTitle>
       </CardHeader>
       <CardContent>
-        <CardDescription className="overflow-ellipsis">
+        <CardDescription className="line-clamp-2 overflow-hidden text-ellipsis">
           {post.content}
         </CardDescription>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex items-center gap-4">
         <VotePost />
+        <CardDescription>{dayjs(post.createdAt).fromNow()}</CardDescription>
       </CardFooter>
     </Card>
   );

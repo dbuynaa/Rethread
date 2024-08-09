@@ -5,9 +5,8 @@ import { type Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
 
 import { Toaster } from "@/components/ui/toaster";
-import Providers from "@/components/layout/providers";
 import { getServerAuthSession } from "@/server/auth";
-import { RenderLayout } from "@/components/layout/render-layout";
+import { Providers, RenderLayout } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Create T3 App",

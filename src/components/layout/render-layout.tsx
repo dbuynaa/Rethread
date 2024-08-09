@@ -1,5 +1,5 @@
-import Header from "@/components/layout/header/header";
-import Sidebar from "@/components/layout/sidebar/sidebar";
+import { Header } from "./header";
+import { Sidebar, SidebarRight } from "./sidebar";
 
 export const RenderLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -9,6 +9,7 @@ export const RenderLayout = ({ children }: { children: React.ReactNode }) => {
         <Header />
         {children}
       </main>
+      <SidebarRight />
     </div>
   );
 };

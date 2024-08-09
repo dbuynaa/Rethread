@@ -33,41 +33,37 @@ export function CreatePostModal({ channelId }: { channelId: string }) {
   const { toast } = useToast();
   const utils = api.useUtils();
 
-  const { isPending, mutate: createPost } = api.post.create.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
-    },
-  });
+  const { isPending, mutate: createPost } = api.post.create.useMutation();
 
   const form = useForm<z.infer<typeof postCreateInput>>({
     resolver: zodResolver(postCreateInput),
     defaultValues: {
-      name: "",
+      channelId: channelId,
     },
   });
 
   function onSubmit(values: z.infer<typeof postCreateInput>) {
-    createPost(
-      { ...values, channelId },
-      {
-        onSuccess() {
-          setOpen(false);
-          toast({
-            title: "Post created",
-            description: "Your post has been created.",
-            variant: "success",
-          });
-        },
-        onError(error) {
-          setOpen(false);
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive",
-          });
-        },
+    createPost(values, {
+      async onSuccess() {
+        await utils.post.invalidate();
+        form.reset();
+        setOpen(false);
+        toast({
+          title: "Post created",
+          description: "Your post has been created.",
+          variant: "success",
+        });
       },
-    );
+      onError(error) {
+        setOpen(false);
+        form.reset();
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
   }
   return (
     <Dialog onOpenChange={setOpen} open={open}>

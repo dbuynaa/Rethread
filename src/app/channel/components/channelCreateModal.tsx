@@ -32,9 +32,9 @@ export function CreateChannelModal() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>New Post</DialogTitle>
+          <DialogTitle>Create Channel</DialogTitle>
           <DialogDescription>
-            Create a new post to share with the community or ask a question.
+            The channel is where you and community interact.
           </DialogDescription>
         </DialogHeader>
         <CreateChannelContainer onFinish={() => setOpen(false)} />

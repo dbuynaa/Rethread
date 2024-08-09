@@ -5,7 +5,6 @@ import { api } from "@/trpc/server";
 
 export default function Page({ params }: { params: { id: string } }) {
   void api.channel.channelDetail.prefetch({ id: params.id });
-  // void api.post.getPosts.prefetch({ channelId: params.id });
 
   return (
     <PageContainer scrollable={true}>

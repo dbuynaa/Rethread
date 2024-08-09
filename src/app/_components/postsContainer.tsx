@@ -3,6 +3,7 @@
 import { PostCard } from "@/components/core";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Post } from "@prisma/client";
+import { useSearch } from "@/hooks/useSearch";
 
 export function PostsContainer({
   isLoading,
@@ -11,6 +12,12 @@ export function PostsContainer({
   isLoading: boolean;
   posts: Post[] | undefined;
 }) {
+  const { setParam } = useSearch();
+
+  const handleClick = (id: string) => {
+    setParam("post", id);
+  };
+
   return (
     <div>
       {isLoading && (
@@ -21,7 +28,9 @@ export function PostsContainer({
         </>
       )}
       {posts ? (
-        posts.map((post) => <PostCard key={post.id} post={post} />)
+        posts.map((post) => (
+          <PostCard onClick={handleClick} key={post.id} post={post} />
+        ))
       ) : (
         <p>You have no posts yet.</p>
       )}

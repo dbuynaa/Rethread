@@ -3,7 +3,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { postCreateInput, postWhereInput } from "../types";
+import { postCreateInput, postsWhereInput, postWhereInput } from "../types";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
@@ -20,7 +20,7 @@ export const postRouter = createTRPCRouter({
     }),
 
   getPosts: publicProcedure
-  .input(postWhereInput)
+  .input(postsWhereInput)
   .query(async ({ ctx, input }) => {
     const posts = await ctx.db.post.findMany({
       where: { channelsId: input?.channelId, name: { contains: input?.search ?? "" } },
@@ -30,14 +30,17 @@ export const postRouter = createTRPCRouter({
     return posts ?? null;
   }),
 
-  getLatest: protectedProcedure
-  .query(async ({ ctx }) => {
+  getPost: publicProcedure
+  .input(postWhereInput)
+  .query(async ({ ctx, input }) => {
     const post = await ctx.db.post.findFirst({
-      orderBy: { createdAt: "desc" },
-      where: { createdBy: { id: ctx.session.user.id } },
+      where: { id: input.id },
+      include: {createdBy: true}
     });
 
-    return post ?? null;
+    if(!post) throw new Error('Post not found')
+
+    return post;
   }),
 });
 

@@ -4,7 +4,7 @@ import ThemeProvider from "./ThemeToggle/theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
 import { SessionProvider, type SessionProviderProps } from "next-auth/react";
 
-export default function Providers({
+export function Providers({
   children,
   session,
 }: {
