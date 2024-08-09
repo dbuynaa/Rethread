@@ -1,7 +1,10 @@
 import PageContainer from "@/components/layout/page-container";
-import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/server";
+import { HomePage } from "./_components/post";
 
-export default function Channel() {
+export default function Page() {
+  void api.post.getLatest.prefetch();
+
   return (
     <PageContainer scrollable={true}>
       <div className="space-y-2">
@@ -9,10 +12,8 @@ export default function Channel() {
           <h2 className="text-2xl font-bold tracking-tight">
             Hi, Welcome back 👋
           </h2>
-          <div className="hidden items-center space-x-2 md:flex">
-            <Button>Download</Button>
-          </div>
         </div>
+        <HomePage />
       </div>
     </PageContainer>
   );

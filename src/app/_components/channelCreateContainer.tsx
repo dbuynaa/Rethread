@@ -19,9 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { CreateChannelInput } from "@/server/api/types";
 
-export function Channels() {
-  const [channels] = api.channel.getChannels.useSuspenseQuery();
-
+export function CreateChannelContainer({ onFinish }: { onFinish: () => void }) {
   const { toast } = useToast();
 
   const utils = api.useUtils();
@@ -41,12 +39,14 @@ export function Channels() {
   function onSubmit(values: z.infer<typeof CreateChannelInput>) {
     createChannel(values, {
       onError(error) {
+        onFinish();
         toast({
           title: "Error",
           description: error.message,
         });
       },
       onSuccess() {
+        onFinish();
         toast({
           title: "Channel created",
         });
@@ -56,29 +56,23 @@ export function Channels() {
 
   return (
     <Form {...form}>
-      <div className="text-white">
-        <h1>Channels</h1>
-        {channels?.map((channel) => <p key={channel.id}>{channel.name}</p>)}
-      </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>name</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Channel name..." {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>The name of the channel</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button disabled={isPending} type="submit">
-          Submit
+          Create
         </Button>
       </form>
     </Form>

@@ -1,22 +1,13 @@
-import { z } from "zod";
-
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
+import { postCreateInput, postWhereInput } from "../types";
 
 export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
   create: protectedProcedure
-    .input(z.object({ name: z.string(), channelId: z.string(), content: z.string() }))
+    .input(postCreateInput)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.post.create({
         data: {
@@ -28,22 +19,25 @@ export const postRouter = createTRPCRouter({
       });
     }),
 
+  getPosts: publicProcedure
+  .input(postWhereInput)
+  .query(async ({ ctx, input }) => {
+    const posts = await ctx.db.post.findMany({
+      where: { channelsId: input?.channelId, name: { contains: input?.search ?? "" } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return posts ?? null;
+  }),
 
   getLatest: protectedProcedure
   .query(async ({ ctx }) => {
-    // const {take, skip} = input ?? {}
     const post = await ctx.db.post.findFirst({
       orderBy: { createdAt: "desc" },
       where: { createdBy: { id: ctx.session.user.id } },
-      // take: take ?? 20,
-      // skip: skip ? take ?? 20 * skip + 1 : 0,
     });
 
     return post ?? null;
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
   }),
 });
 

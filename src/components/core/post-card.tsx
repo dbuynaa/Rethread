@@ -3,11 +3,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
+import VotePost from "./vote";
 
-export const CardPost = ({ post }: { post: Post }) => {
+export const PostCard = ({ post }: { post: Post }) => {
   return (
     <Card className="mb-4">
       <CardHeader>
@@ -18,7 +20,9 @@ export const CardPost = ({ post }: { post: Post }) => {
           {post.content}
         </CardDescription>
       </CardContent>
-      {/* <CardFooter></CardFooter> */}
+      <CardFooter>
+        <VotePost />
+      </CardFooter>
     </Card>
   );
 };

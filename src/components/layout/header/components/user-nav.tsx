@@ -1,5 +1,5 @@
 "use client";
-import GoogleSignInButton from "@/components/github-auth-button";
+import GoogleSignInButton from "@/components/core/google-auth-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

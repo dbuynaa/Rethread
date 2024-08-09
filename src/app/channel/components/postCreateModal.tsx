@@ -16,7 +16,7 @@ import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { type z } from "zod";
 import { useState } from "react";
 import { FormInput } from "@/components/form/form-item";
 import {
@@ -26,8 +26,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { postCreateInput } from "@/server/api/types";
 
-export function AddPostModal({ channelId }: { channelId: string }) {
+export function CreatePostModal({ channelId }: { channelId: string }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -38,19 +39,14 @@ export function AddPostModal({ channelId }: { channelId: string }) {
     },
   });
 
-  const formSchema = z.object({
-    name: z.string().min(2).max(50),
-    content: z.string().min(2).max(500),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof postCreateInput>>({
+    resolver: zodResolver(postCreateInput),
     defaultValues: {
       name: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof postCreateInput>) {
     createPost(
       { ...values, channelId },
       {
@@ -76,17 +72,17 @@ export function AddPostModal({ channelId }: { channelId: string }) {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button variant="outline">New Post</Button>
+        <Button variant="default">New Post</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>New Post</DialogTitle>
+          <DialogDescription>
+            Create a new post to share with the community or ask a question.
+          </DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader>
-              <DialogTitle>New Post</DialogTitle>
-              <DialogDescription>
-                Create a new post to share with the community or ask a question.
-              </DialogDescription>
-            </DialogHeader>
             <div className="grid w-full gap-4 py-4">
               <FormInput
                 form={form}

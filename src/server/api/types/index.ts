@@ -1,1 +1,2 @@
-export * from './channelCreateInput'
+export * from './channel'
+export * from './post'

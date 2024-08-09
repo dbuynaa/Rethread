@@ -1,16 +1,14 @@
-
-import { z } from "zod";
-
 import {
     createTRPCRouter,
     protectedProcedure,
     publicProcedure,
   } from "@/server/api/trpc";
 import { CreateChannelInput } from "../types";
+import { channelsWhereInput, channelWhereInput } from "../types/channel";
 
 export const channelRouter = createTRPCRouter({
     getChannels: publicProcedure
-    .input( z.object({ take: z.number().optional(), skip: z.number().optional() }).optional())
+    .input( channelsWhereInput)
     .query(async ({ ctx, input }) => {
     const {take, skip} = input ?? {}
     const channel = await ctx.db.channel.findMany({
@@ -21,16 +19,17 @@ export const channelRouter = createTRPCRouter({
       
     return channel ?? null;
   }),
+
   channelDetail: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(channelWhereInput)
     .query(async ({ ctx, input }) => {
       const channel = await ctx.db.channel.findUnique({
         where: { id: input.id },
-        include: { posts: true },
       });
       if(!channel) throw new Error('Channel not found')
       return channel;
     }),
+    
    create: protectedProcedure
      .input(CreateChannelInput)
      .mutation(async ({ ctx, input }) => {
@@ -42,6 +41,5 @@ export const channelRouter = createTRPCRouter({
            createdAt: new Date(),
          },
        });
-     
      }),
  })

@@ -13,7 +13,7 @@ export default function Providers({
 }) {
   return (
     <>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <SessionProvider session={session}>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </SessionProvider>
