@@ -18,7 +18,8 @@ import { Icons } from '@/components/icons';
 import { useSearch } from '@/hooks/useSearch';
 import { Textarea } from '@/components/ui/textarea';
 import dayjs from 'dayjs';
-import { Vote } from '@/components/core';
+import { Comment, Vote } from '@/components/core';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SidebarProps {
   className?: string;
@@ -45,9 +46,21 @@ export function SidebarRight({ className }: SidebarProps) {
     { enabled: !!postId },
   );
   const { isPending, mutate: createPost } = api.message.create.useMutation();
+  const { isPending: deletePending, mutate: deletePost } =
+    api.message.delete.useMutation();
 
   const handleClick = () => {
     setParam('post', null);
+  };
+  const handleDelete = (id: string) => {
+    deletePost(
+      { id },
+      {
+        async onSuccess() {
+          await refetch();
+        },
+      },
+    );
   };
 
   const handleCommentSubmit = () => {
@@ -135,35 +148,22 @@ export function SidebarRight({ className }: SidebarProps) {
             </div>
 
             {/* Comments Section */}
-            <div className="flex flex-col">
-              {comments?.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="mb-4 flex items-start space-x-4"
-                >
-                  <Avatar className="mr-3 h-10 w-10">
-                    <AvatarImage
-                      src={comment.user.image ?? ''}
-                      alt={comment.user.name ?? ''}
-                    />
-                    <AvatarFallback>{comment.user.name?.[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-grow">
-                    {isLoadingComments && <LoaderCircle />}
-                    <div className="flex items-baseline gap-3">
-                      <h2 className="text-lg font-semibold">
-                        {comment.user.name}
-                      </h2>
-                      <p className="text-sm text-gray-500">
-                        {dayjs(comment.createdAt).fromNow()}
-                      </p>
-                    </div>
-                    <p className="text-sm text-secondary-foreground">
-                      {comment.content}
-                    </p>
-                    <Vote messageId={comment.id} />
-                  </div>
+            <div className="relative flex flex-col">
+              {isLoadingComments && (
+                <div className="absolute right-4 top-4">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
                 </div>
+              )}
+              {comments?.map((comment) => (
+                <Comment
+                  handleDelete={handleDelete}
+                  key={comment.id}
+                  comment={comment}
+                  user={comment.user}
+                  loading={deletePending}
+                />
               ))}
             </div>
           </div>

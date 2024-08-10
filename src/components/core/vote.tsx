@@ -1,4 +1,5 @@
 // /components/core/Vote.tsx
+'use client';
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,10 @@ export const Vote: React.FC<VoteProps> = ({ postId, messageId, className }) => {
   return (
     <div className={cn('flex items-center space-x-2', className)}>
       <Button
-        onClick={() => handleVote(1)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleVote(1);
+        }}
         variant={voteData?.userVote === 1 ? 'default' : 'ghost'}
         size="sm"
       >
@@ -46,7 +50,10 @@ export const Vote: React.FC<VoteProps> = ({ postId, messageId, className }) => {
       </Button>
       <span>{voteData?.points ?? 0}</span>
       <Button
-        onClick={() => handleVote(-1)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleVote(-1);
+        }}
         variant={voteData?.userVote === -1 ? 'default' : 'ghost'}
         size="sm"
       >

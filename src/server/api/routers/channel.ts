@@ -12,7 +12,20 @@ export const channelRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { take, skip } = input ?? {};
       const channel = await ctx.db.channel.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          ctx.session?.user ? { members: { _count: 'desc' } } : {},
+          { posts: { _count: 'desc' } },
+          {
+            // Order by the number of members, as more popular channels are often more relevant.
+            members: {
+              _count: 'desc',
+            },
+          },
+          {
+            // Finally, order by creation date to give some priority to newer channels.
+            createdAt: 'desc',
+          },
+        ],
         take: take ?? 20,
         skip: skip ? (take ?? 20 * skip + 1) : 0,
       });

@@ -7,11 +7,8 @@ import { ChevronLeft } from 'lucide-react';
 import { useSidebar } from '@/hooks/useSidebar';
 import { api } from '@/trpc/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { CreateChannelModal } from '@/app/channel/components/channelCreateModal';
-import { Avatar } from '@/components/ui/avatar';
-import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { ChannelItem } from '@/components/core/channel-item';
 
 interface SidebarProps {
   className?: string;
@@ -20,34 +17,6 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const { isMinimized, toggle } = useSidebar();
   const [channels] = api.channel.getChannels.useSuspenseQuery();
-  const router = useRouter();
-
-  const ChannelItem = ({
-    name,
-    id,
-    image,
-  }: {
-    name: string;
-    id: string;
-    image: string | null;
-  }) => (
-    <Button
-      variant="ghost"
-      size="lg"
-      onClick={() => router.replace(`/channel/${id}`)}
-      className="justify-start overflow-hidden p-0"
-    >
-      <div className="flex items-center justify-start gap-4 overflow-hidden py-2">
-        <Avatar className="ml-4 mr-3 h-10 w-10">
-          <AvatarImage src={image ?? ''} alt={name ?? ''} />
-          <AvatarFallback className="text-2xl font-bold text-primary">
-            {name?.[0]}
-          </AvatarFallback>
-        </Avatar>
-        {name}
-      </div>
-    </Button>
-  );
 
   return (
     <aside

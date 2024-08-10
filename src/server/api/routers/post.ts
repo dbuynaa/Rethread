@@ -18,6 +18,23 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+  delete: protectedProcedure
+    .input(postWhereInput)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.post.delete({ where: { id: input.id } });
+    }),
+
+  update: protectedProcedure
+    .input(postCreateInput)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.post.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+          content: input.content,
+        },
+      });
+    }),
 
   getPosts: publicProcedure
     .input(postsWhereInput)
@@ -27,7 +44,19 @@ export const postRouter = createTRPCRouter({
           channelsId: input?.channelId,
           name: { contains: input?.search ?? '' },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          {
+            points: 'desc',
+          },
+          {
+            votes: {
+              _count: 'desc',
+            },
+          },
+          {
+            createdAt: 'desc',
+          },
+        ],
       });
 
       return posts ?? null;

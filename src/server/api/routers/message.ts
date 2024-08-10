@@ -36,6 +36,11 @@ export const messageRouter = createTRPCRouter({
       const messages = await ctx.db.message.findMany({
         where: { postId: input?.postId },
         include: { user: true },
+        orderBy: [
+          { points: 'desc' },
+          { votes: { _count: 'desc' } },
+          { createdAt: 'desc' },
+        ],
       });
 
       return messages;
