@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import { CreateChannelContainer } from "@/app/_components/channelCreateContainer";
-import { Icons } from "@/components/icons";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+} from '@/components/ui/dialog';
+import { useState } from 'react';
+import { CreateChannelContainer } from '@/app/_components/channelCreateContainer';
+import { Icons } from '@/components/icons';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 
 export function CreateChannelModal() {
   const [open, setOpen] = useState(false);

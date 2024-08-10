@@ -1,2 +1,2 @@
-export * from './channelCreateInput'
-export * from './channelsWhereInput'
+export * from './channelCreateInput';
+export * from './channelsWhereInput';

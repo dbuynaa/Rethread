@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
-import { cn } from "@/lib/utils";
-import { ChevronLeft } from "lucide-react";
-import { useSidebar } from "@/hooks/useSidebar";
-import { api } from "@/trpc/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { CreateChannelModal } from "@/app/channel/components/channelCreateModal";
-import { Avatar } from "@/components/ui/avatar";
-import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { cn } from '@/lib/utils';
+import { ChevronLeft } from 'lucide-react';
+import { useSidebar } from '@/hooks/useSidebar';
+import { api } from '@/trpc/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { CreateChannelModal } from '@/app/channel/components/channelCreateModal';
+import { Avatar } from '@/components/ui/avatar';
+import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 
-type SidebarProps = {
+interface SidebarProps {
   className?: string;
-};
+}
 
 export function Sidebar({ className }: SidebarProps) {
   const { isMinimized, toggle } = useSidebar();
@@ -39,7 +39,7 @@ export function Sidebar({ className }: SidebarProps) {
     >
       <div className="flex items-center justify-start gap-4 overflow-hidden py-2">
         <Avatar className="ml-4 mr-3 h-10 w-10">
-          <AvatarImage src={image ?? ""} alt={name ?? ""} />
+          <AvatarImage src={image ?? ''} alt={name ?? ''} />
           <AvatarFallback className="text-2xl font-bold text-primary">
             {name?.[0]}
           </AvatarFallback>
@@ -53,7 +53,7 @@ export function Sidebar({ className }: SidebarProps) {
     <aside
       className={cn(
         `relative hidden h-screen flex-none border-r bg-card transition-[width] duration-500 md:block`,
-        !isMinimized ? "w-72" : "w-[72px]",
+        !isMinimized ? 'w-72' : 'w-[72px]',
         className,
       )}
     >
@@ -75,8 +75,8 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
       <ChevronLeft
         className={cn(
-          "absolute -right-3 top-10 z-50 cursor-pointer rounded-full border bg-background text-3xl",
-          isMinimized && "rotate-180",
+          'absolute -right-3 top-10 z-50 cursor-pointer rounded-full border bg-background text-3xl',
+          isMinimized && 'rotate-180',
         )}
         onClick={toggle}
       />

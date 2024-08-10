@@ -2,8 +2,8 @@ import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
-} from "@/server/api/trpc";
-import { postCreateInput, postsWhereInput, postWhereInput } from "../types";
+} from '@/server/api/trpc';
+import { postCreateInput, postsWhereInput, postWhereInput } from '../types';
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
@@ -20,27 +20,29 @@ export const postRouter = createTRPCRouter({
     }),
 
   getPosts: publicProcedure
-  .input(postsWhereInput)
-  .query(async ({ ctx, input }) => {
-    const posts = await ctx.db.post.findMany({
-      where: { channelsId: input?.channelId, name: { contains: input?.search ?? "" } },
-      orderBy: { createdAt: "desc" },
-    });
+    .input(postsWhereInput)
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.db.post.findMany({
+        where: {
+          channelsId: input?.channelId,
+          name: { contains: input?.search ?? '' },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
 
-    return posts ?? null;
-  }),
+      return posts ?? null;
+    }),
 
   getPost: publicProcedure
-  .input(postWhereInput)
-  .query(async ({ ctx, input }) => {
-    const post = await ctx.db.post.findFirst({
-      where: { id: input.id },
-      include: {createdBy: true}
-    });
+    .input(postWhereInput)
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findFirst({
+        where: { id: input.id },
+        include: { createdBy: true },
+      });
 
-    if(!post) throw new Error('Post not found')
+      if (!post) throw new Error('Post not found');
 
-    return post;
-  }),
+      return post;
+    }),
 });
-

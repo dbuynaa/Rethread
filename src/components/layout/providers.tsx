@@ -1,14 +1,14 @@
-"use client";
-import React from "react";
-import ThemeProvider from "./ThemeToggle/theme-provider";
-import { TRPCReactProvider } from "@/trpc/react";
-import { SessionProvider, type SessionProviderProps } from "next-auth/react";
+'use client';
+import React from 'react';
+import ThemeProvider from './ThemeToggle/theme-provider';
+import { TRPCReactProvider } from '@/trpc/react';
+import { SessionProvider, type SessionProviderProps } from 'next-auth/react';
 
 export function Providers({
   children,
   session,
 }: {
-  session: SessionProviderProps["session"];
+  session: SessionProviderProps['session'];
   children: React.ReactNode;
 }) {
   return (

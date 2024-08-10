@@ -6,6 +6,11 @@ await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
 const config = {
+  reactStrictMode: true,
+  swcMinify: true,
+  compiler: {
+    styledComponents: true,
+  },
   //   experimental: {
   //     externalMiddlewareRewritesResolve: true,
   //   },

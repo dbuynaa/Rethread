@@ -1,5 +1,5 @@
-import { Header } from "./header";
-import { Sidebar, SidebarRight } from "./sidebar";
+import { Header } from './header';
+import { Sidebar, SidebarRight } from './sidebar';
 
 export const RenderLayout = ({ children }: { children: React.ReactNode }) => {
   return (

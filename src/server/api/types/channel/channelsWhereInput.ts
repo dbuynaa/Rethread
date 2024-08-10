@@ -1,8 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-const channelsWhereInput =z.object({ take: z.number().optional(), skip: z.number().optional() }).optional()
+const channelsWhereInput = z
+  .object({ take: z.number().optional(), skip: z.number().optional() })
+  .optional();
 
-const channelWhereInput = z.object({ id: z.string() })
+const channelWhereInput = z.object({ id: z.string() });
 
-
-export { channelsWhereInput, channelWhereInput }
+export { channelsWhereInput, channelWhereInput };

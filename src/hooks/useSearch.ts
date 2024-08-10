@@ -16,7 +16,7 @@ export function useSearch() {
       }
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   const setParam = useCallback(
@@ -24,21 +24,21 @@ export function useSearch() {
       const queryString = createQueryString(name, value);
       router.push(queryString ? `?${queryString}` : window.location.pathname);
     },
-    [router, createQueryString]
+    [router, createQueryString],
   );
 
   const getParam = useCallback(
     (name: string) => {
       return searchParams.get(name);
     },
-    [searchParams]
+    [searchParams],
   );
 
   const removeParam = useCallback(
     (name: string) => {
       setParam(name, null);
     },
-    [setParam]
+    [setParam],
   );
 
   return {

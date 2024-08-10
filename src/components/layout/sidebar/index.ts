@@ -1,3 +1,3 @@
-export * from './sidebar'
-export * from './mobile-sidebar'
-export * from './sidebar-right'
+export * from './sidebar';
+export * from './mobile-sidebar';
+export * from './sidebar-right';

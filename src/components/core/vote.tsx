@@ -1,56 +1,57 @@
-import { useState } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
-import { Button } from "../ui/button";
+// /components/core/Vote.tsx
 
-const Vote = () => {
-  const [votes, setVotes] = useState(10);
-  const [userVote, setUserVote] = useState<string | null>(null);
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import { api } from '@/trpc/react';
+import { cn } from '@/lib/utils';
 
-  const handleUpvote = () => {
-    if (userVote === "up") {
-      setVotes((prevVotes) => prevVotes - 1);
-      setUserVote(null);
-    } else if (userVote === "down") {
-      setVotes((prevVotes) => prevVotes + 2);
-      setUserVote("up");
-    } else {
-      setVotes((prevVotes) => prevVotes + 1);
-      setUserVote("up");
-    }
-  };
+interface VoteProps {
+  postId?: string;
+  messageId?: string;
+  className?: string;
+}
 
-  const handleDownvote = () => {
-    if (userVote === "down") {
-      setVotes((prevVotes) => prevVotes + 1);
-      setUserVote(null);
-    } else if (userVote === "up") {
-      setVotes((prevVotes) => prevVotes - 2);
-      setUserVote("down");
-    } else {
-      setVotes((prevVotes) => prevVotes - 1);
-      setUserVote("down");
-    }
+export const Vote: React.FC<VoteProps> = ({ postId, messageId, className }) => {
+  const utils = api.useUtils();
+
+  const { data: voteData } = api.vote.getVote.useQuery(
+    { postId, messageId },
+    { enabled: !!(postId ?? messageId) },
+  );
+
+  const { mutate: vote } = api.vote.voteMutation.useMutation({
+    onSuccess: () => {
+      void utils.vote.getVote.invalidate({ postId, messageId });
+      if (postId) {
+        void utils.post.getPost.invalidate({ id: postId });
+      } else if (messageId) {
+        void utils.message.getMessages.invalidate();
+      }
+    },
+  });
+
+  const handleVote = (value: number) => {
+    vote({ postId, messageId, value });
   };
 
   return (
-    <div className="z-10 flex w-fit items-center justify-between text-center">
+    <div className={cn('flex items-center space-x-2', className)}>
       <Button
-        variant={userVote === "up" ? "default" : "ghost"}
-        size="icon"
-        onClick={handleUpvote}
+        onClick={() => handleVote(1)}
+        variant={voteData?.userVote === 1 ? 'default' : 'ghost'}
+        size="sm"
       >
-        <ArrowUp className="h-5 w-5" />
+        <ArrowUpIcon />
       </Button>
-      <p className="px-2 text-center text-sm font-medium">{votes}</p>
+      <span>{voteData?.points ?? 0}</span>
       <Button
-        variant={userVote === "down" ? "destructive" : "ghost"}
-        size="icon"
-        onClick={handleDownvote}
+        onClick={() => handleVote(-1)}
+        variant={voteData?.userVote === -1 ? 'default' : 'ghost'}
+        size="sm"
       >
-        <ArrowDown className="h-5 w-5" />
+        <ArrowDownIcon />
       </Button>
     </div>
   );
 };
-
-export default Vote;

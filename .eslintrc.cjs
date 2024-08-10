@@ -1,41 +1,70 @@
 /** @type {import("eslint").Linter.Config} */
 const config = {
-  parser: "@typescript-eslint/parser",
+  env: {
+    browser: true,
+    node: true,
+    es2020: true,
+  },
+  parser: '@typescript-eslint/parser',
   parserOptions: {
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
     project: true,
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ['@typescript-eslint', 'react', 'prettier'],
   extends: [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended-type-checked",
-    "plugin:@typescript-eslint/stylistic-type-checked",
-    "prettier",
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'next',
+    'next/core-web-vitals',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked',
+    'plugin:import/errors',
+    'plugin:import/warnings',
+    'plugin:import/typescript',
+    'prettier',
   ],
   rules: {
-    "@typescript-eslint/array-type": "off",
-    "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/consistent-type-imports": [
-      "warn",
+    'prettier/prettier': [
+      'error',
       {
-        prefer: "type-imports",
-        fixStyle: "inline-type-imports",
+        singleQuote: true,
+        semi: true,
+        tabWidth: 2,
+        trailingComma: 'all',
+        endOfLine: 'auto',
       },
     ],
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
+    '@typescript-eslint/consistent-type-imports': [
+      'warn',
       {
-        argsIgnorePattern: "^_",
+        prefer: 'type-imports',
+        fixStyle: 'inline-type-imports',
       },
     ],
-    "@typescript-eslint/require-await": "off",
-    "@typescript-eslint/no-misused-promises": [
-      "error",
+    '@typescript-eslint/no-misused-promises': [
+      'error',
       {
         checksVoidReturn: {
           attributes: false,
         },
       },
     ],
+    'react/react-in-jsx-scope': 'off',
+    // "react/prop-types": "off",
+    // "@typescript-eslint/explicit-module-boundary-types": "off",
+    '@next/next/no-img-element': 'off',
+    '@next/next/no-sync-scripts': 'off',
   },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+    'import/resolver': {
+      typescript: {}, // this loads <rootdir>/tsconfig.json to eslint
+    },
+  },
+  ignorePatterns: ['node_modules/*', 'next.config.js'],
 };
 module.exports = config;

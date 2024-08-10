@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,24 +9,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/trpc/react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/components/ui/use-toast";
-import { useForm } from "react-hook-form";
-import { type z } from "zod";
-import { useState } from "react";
-import { FormInput } from "@/components/form/form-item";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { api } from '@/trpc/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToast } from '@/components/ui/use-toast';
+import { useForm } from 'react-hook-form';
+import { type z } from 'zod';
+import { useState } from 'react';
+import { FormInput } from '@/components/form/form-item';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { postCreateInput } from "@/server/api/types";
+} from '@/components/ui/form';
+import { postCreateInput } from '@/server/api/types';
 
 export function CreatePostModal({ channelId }: { channelId: string }) {
   const [open, setOpen] = useState(false);
@@ -49,18 +49,18 @@ export function CreatePostModal({ channelId }: { channelId: string }) {
         form.reset();
         setOpen(false);
         toast({
-          title: "Post created",
-          description: "Your post has been created.",
-          variant: "success",
+          title: 'Post created',
+          description: 'Your post has been created.',
+          variant: 'success',
         });
       },
       onError(error) {
         setOpen(false);
         form.reset();
         toast({
-          title: "Error",
+          title: 'Error',
           description: error.message,
-          variant: "destructive",
+          variant: 'destructive',
         });
       },
     });
@@ -84,7 +84,7 @@ export function CreatePostModal({ channelId }: { channelId: string }) {
                 form={form}
                 name="name"
                 inputProps={{
-                  className: "col-span-4",
+                  className: 'col-span-4',
                   placeholder: "What's on your mind? Add a title to your post.",
                 }}
                 label="Title"

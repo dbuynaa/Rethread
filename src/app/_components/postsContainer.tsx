@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { PostCard } from "@/components/core";
-import { Skeleton } from "@/components/ui/skeleton";
-import { type Post } from "@prisma/client";
-import { useSearch } from "@/hooks/useSearch";
+import { PostCard } from '@/components/core';
+import { Skeleton } from '@/components/ui/skeleton';
+import { type Post } from '@prisma/client';
+import { useSearch } from '@/hooks/useSearch';
 
 export function PostsContainer({
   isLoading,
@@ -15,7 +15,7 @@ export function PostsContainer({
   const { setParam } = useSearch();
 
   const handleClick = (id: string) => {
-    setParam("post", id);
+    setParam('post', id);
   };
 
   return (

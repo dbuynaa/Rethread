@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { api } from "@/trpc/react";
-import { PostsContainer } from "./postsContainer";
+import { api } from '@/trpc/react';
+import { PostsContainer } from './postsContainer';
 
 export function HomePage() {
   const [posts] = api.post.getPosts.useSuspenseQuery();

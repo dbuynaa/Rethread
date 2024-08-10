@@ -1,6 +1,9 @@
-import PageContainer from "@/components/layout/page-container";
-import { api } from "@/trpc/server";
-import { HomePage } from "./_components/post";
+import { api } from '@/trpc/server';
+import { HomePage } from './_components/post';
+import { PageContainer } from '@/components/layout';
+import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
+import { extend } from 'dayjs';
+extend(relativeTime);
 
 export default function Page() {
   void api.post.getPosts.prefetch();

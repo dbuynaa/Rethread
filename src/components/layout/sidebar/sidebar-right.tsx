@@ -1,43 +1,76 @@
-"use client";
+'use client';
 
-import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
-import { api } from "@/trpc/react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { LoaderCircle, MessageCircleQuestionIcon } from "lucide-react";
-import Vote from "@/components/core/vote";
-import { AvatarImage } from "@radix-ui/react-avatar";
-import { Icons } from "@/components/icons";
-import { useSearch } from "@/hooks/useSearch";
+import React, { useState } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
+import { api } from '@/trpc/react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import {
+  LoaderCircle,
+  MessageCircleQuestionIcon,
+  SendIcon,
+} from 'lucide-react';
+import { AvatarImage } from '@radix-ui/react-avatar';
+import { Icons } from '@/components/icons';
+import { useSearch } from '@/hooks/useSearch';
+import { Textarea } from '@/components/ui/textarea';
+import dayjs from 'dayjs';
+import { Vote } from '@/components/core';
 
-type SidebarProps = {
+interface SidebarProps {
   className?: string;
-};
+}
 
 export function SidebarRight({ className }: SidebarProps) {
   const params = useSearchParams();
-  const postId = params.get("post");
+  const postId = params.get('post');
+  const [comment, setComment] = useState('');
 
   const { setParam } = useSearch();
-
-  const handleClick = () => {
-    setParam("post", null);
-  };
 
   const { data: post, isLoading } = api.post.getPost.useQuery(
     { id: postId! },
     { enabled: !!postId },
   );
 
+  const {
+    data: comments,
+    refetch,
+    isLoading: isLoadingComments,
+  } = api.message.getMessages.useQuery(
+    { postId: postId! },
+    { enabled: !!postId },
+  );
+  const { isPending, mutate: createPost } = api.message.create.useMutation();
+
+  const handleClick = () => {
+    setParam('post', null);
+  };
+
+  const handleCommentSubmit = () => {
+    if (!comment || !postId) return;
+    createPost(
+      {
+        content: comment,
+        postId: postId,
+      },
+      {
+        async onSuccess() {
+          await refetch();
+          setComment('');
+        },
+      },
+    );
+  };
+
   return (
     <aside
       className={cn(
         `relative h-screen flex-none border-l bg-card transition-[width] duration-200`,
-        postId ? "w-[41vw]" : "w-0",
+        postId ? 'w-[41vw]' : 'w-0',
         className,
       )}
     >
@@ -58,19 +91,19 @@ export function SidebarRight({ className }: SidebarProps) {
             <div className="mb-4 flex items-start">
               <Avatar className="mr-3 h-10 w-10">
                 <AvatarImage
-                  src={post.createdBy.image ?? ""}
-                  alt={post.createdBy.name ?? ""}
+                  src={post.createdBy.image ?? ''}
+                  alt={post.createdBy.name ?? ''}
                 />
                 <AvatarFallback>{post.createdBy.name?.[0]}</AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-grow">
                 <div className="flex items-baseline gap-3">
                   <h2 className="text-lg font-semibold">
                     {post.createdBy.name}
                   </h2>
                   <p className="text-sm text-gray-500">
                     <span className="mr-1">Created At </span>
-                    {new Date(post.createdAt).toLocaleString()}
+                    {dayjs(post.createdAt).format('YYYY-MM-DD')}
                   </p>
                 </div>
                 <p className="text-sm text-secondary-foreground">
@@ -78,15 +111,67 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote />
+            <Vote postId={post.id} />
             <Separator className="my-6" />
-            <h3 className="text-md mb-2 font-semibold">Replies</h3>
-            <p className="text-gray-500">No replies yet.</p>
+
+            {/* Comment Input Section */}
+            <div className="mb-6">
+              <h3 className="text-md mb-2 font-semibold">Add a comment</h3>
+              <div className="flex items-start space-x-2">
+                <Textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Type your comment here..."
+                  className="flex-grow"
+                />
+                <Button
+                  disabled={isPending}
+                  onClick={handleCommentSubmit}
+                  size="icon"
+                >
+                  <SendIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="flex flex-col">
+              {comments?.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="mb-4 flex items-start space-x-4"
+                >
+                  <Avatar className="mr-3 h-10 w-10">
+                    <AvatarImage
+                      src={comment.user.image ?? ''}
+                      alt={comment.user.name ?? ''}
+                    />
+                    <AvatarFallback>{comment.user.name?.[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-grow">
+                    {isLoadingComments && <LoaderCircle />}
+                    <div className="flex items-baseline gap-3">
+                      <h2 className="text-lg font-semibold">
+                        {comment.user.name}
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        {dayjs(comment.createdAt).fromNow()}
+                      </p>
+                    </div>
+                    <p className="text-sm text-secondary-foreground">
+                      {comment.content}
+                    </p>
+                    <Vote messageId={comment.id} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+
           <Button
             className="absolute right-4 top-4"
-            variant={"ghost"}
-            size={"icon"}
+            variant={'ghost'}
+            size={'icon'}
             onClick={handleClick}
           >
             <Icons.close />

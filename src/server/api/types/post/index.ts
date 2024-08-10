@@ -1,2 +1,2 @@
-export * from './postsWhereInput'
-export * from './postCreateInput'
+export * from './postsWhereInput';
+export * from './postCreateInput';

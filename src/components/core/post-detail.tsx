@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { ChevronDownIcon } from "lucide-react"; // Import chevron icon from lucide
-import { Card, CardHeader, CardContent } from "../ui/card"; // Import components from shadcn/ui
-import { cn } from "@/lib/utils";
-import { type Post } from "@prisma/client";
-import { Button } from "../ui/button";
+import { useState } from 'react';
+import { ChevronDownIcon } from 'lucide-react'; // Import chevron icon from lucide
+import { Card, CardHeader, CardContent } from '../ui/card'; // Import components from shadcn/ui
+import { cn } from '@/lib/utils';
+import { type Post } from '@prisma/client';
+import { Button } from '../ui/button';
 
 const PostDetails = ({ post }: { post: Post }) => {
   const [showParticipants, setShowParticipants] = useState(false);
@@ -20,8 +20,8 @@ const PostDetails = ({ post }: { post: Post }) => {
           >
             <ChevronDownIcon
               className={cn(
-                "h-5 w-5 transition-transform",
-                showParticipants && "rotate-180",
+                'h-5 w-5 transition-transform',
+                showParticipants && 'rotate-180',
               )}
             />
             {/* <span>{thread.participants.length} Participants</span> */}

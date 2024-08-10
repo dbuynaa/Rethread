@@ -1,7 +1,7 @@
-"use client";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { MenuIcon } from "lucide-react";
-import { useState } from "react";
+'use client';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { MenuIcon } from 'lucide-react';
+import { useState } from 'react';
 // import { DashboardNav } from "./dashboard-nav";
 
 // import { Playlist } from "../data/playlists";

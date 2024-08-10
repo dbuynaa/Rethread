@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { api } from "@/trpc/react";
-import { type z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { api } from '@/trpc/react';
+import { type z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
 import {
   Form,
@@ -13,11 +13,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { CreateChannelInput } from "@/server/api/types";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { CreateChannelInput } from '@/server/api/types';
 
 export function CreateChannelContainer({ onFinish }: { onFinish: () => void }) {
   const { toast } = useToast();
@@ -32,7 +32,7 @@ export function CreateChannelContainer({ onFinish }: { onFinish: () => void }) {
   const form = useForm<z.infer<typeof CreateChannelInput>>({
     resolver: zodResolver(CreateChannelInput),
     defaultValues: {
-      name: "",
+      name: '',
     },
   });
 
@@ -41,14 +41,14 @@ export function CreateChannelContainer({ onFinish }: { onFinish: () => void }) {
       onError(error) {
         onFinish();
         toast({
-          title: "Error",
+          title: 'Error',
           description: error.message,
         });
       },
       onSuccess() {
         onFinish();
         toast({
-          title: "Channel created",
+          title: 'Channel created',
         });
       },
     });

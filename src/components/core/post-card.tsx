@@ -1,4 +1,4 @@
-import { type Post } from "@prisma/client";
+import { type Post } from '@prisma/client';
 import {
   Card,
   CardContent,
@@ -6,10 +6,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import VotePost from "./vote";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime"; // Import the plugin
+} from '../ui/card';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
+import { Vote } from './vote';
 dayjs.extend(relativeTime);
 
 export const PostCard = ({
@@ -37,7 +37,7 @@ export const PostCard = ({
         </CardDescription>
       </CardContent>
       <CardFooter className="flex items-center gap-4">
-        <VotePost />
+        <Vote postId={post.id} />
         <CardDescription>{dayjs(post.createdAt).fromNow()}</CardDescription>
       </CardFooter>
     </Card>

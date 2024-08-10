@@ -28,6 +28,7 @@ model User {
     posts          Post[]
     channelMembers ChannelMembers[]
     userRoles      UserRoles[]
+    votes          Vote[]
 }
 
 model Role {
@@ -45,6 +46,7 @@ model Post {
     id          String   @id @default(uuid())
     name        String
     fileUrl     String?
+    points      Int      @default(0)
     content     String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
@@ -54,8 +56,26 @@ model Post {
     channels  Channel   @relation(fields: [channelsId], references: [id])
     createdBy User      @relation(fields: [createdById], references: [id])
     messages  Message[]
+    votes     Vote[]
 
     @@index([name])
+}
+
+model Vote {
+    id        String   @id @default(uuid())
+    value     Int
+    userId    String
+    postId    String?
+    messageId String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    post    Post?    @relation(fields: [postId], references: [id])
+    user    User     @relation(fields: [userId], references: [id])
+    message Message? @relation(fields: [messageId], references: [id])
+
+    @@unique([userId, postId])
+    @@unique([userId, messageId])
 }
 
 model Channel {
@@ -74,6 +94,7 @@ model Channel {
 model Message {
     id      String  @id @default(uuid())
     content String
+    points  Int     @default(0)
     fileUrl String?
 
     createdById String
@@ -82,8 +103,9 @@ model Message {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-    user User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    post  Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user  User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    votes Vote[]
 }
 
 model ChannelMembers {

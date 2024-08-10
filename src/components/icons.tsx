@@ -33,7 +33,7 @@ import {
   User2Icon,
   UserX2Icon,
   X,
-} from "lucide-react";
+} from 'lucide-react';
 
 export type Icon = LucideIcon;
 
