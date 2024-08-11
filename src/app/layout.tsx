@@ -7,6 +7,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from '@/components/ui/toaster';
 import { getServerAuthSession } from '@/server/auth';
 import { Providers, RenderLayout } from '@/components/layout';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
 import { extend } from 'dayjs';
@@ -34,6 +35,7 @@ export default async function RootLayout({
           <Toaster />
           <RenderLayout>{children}</RenderLayout>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
