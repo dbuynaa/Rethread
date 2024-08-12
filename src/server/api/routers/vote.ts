@@ -1,7 +1,11 @@
 // /server/api/routers/vote.ts
 
 import { z } from 'zod';
-import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from '@/server/api/trpc';
 import { TRPCError } from '@trpc/server';
 
 export const voteRouter = createTRPCRouter({
@@ -108,16 +112,17 @@ export const voteRouter = createTRPCRouter({
       });
     }),
 
-  getVote: protectedProcedure
+  getVote: publicProcedure
     .input(
       z.object({
         postId: z.string().optional(),
         messageId: z.string().optional(),
+        userId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { postId, messageId } = input;
-      const userId = ctx.session.user.id;
+      const { postId, messageId, userId } = input;
+      // const userId = ctx.session.user.id;
 
       const [vote, target] = await Promise.all([
         postId

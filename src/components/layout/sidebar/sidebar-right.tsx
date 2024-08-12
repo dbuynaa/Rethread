@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import dayjs from 'dayjs';
 import { Comment, Vote } from '@/components/core';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SidebarProps {
   className?: string;
@@ -29,6 +30,7 @@ export function SidebarRight({ className }: SidebarProps) {
   const params = useSearchParams();
   const postId = params.get('post');
   const [comment, setComment] = useState('');
+  const { toast } = useToast();
 
   const { setParam } = useSearch();
 
@@ -59,6 +61,13 @@ export function SidebarRight({ className }: SidebarProps) {
         async onSuccess() {
           await refetch();
         },
+        onError(error) {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
       },
     );
   };
@@ -75,6 +84,13 @@ export function SidebarRight({ className }: SidebarProps) {
           await refetch();
           setComment('');
         },
+        onError(error) {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
       },
     );
   };
@@ -83,7 +99,7 @@ export function SidebarRight({ className }: SidebarProps) {
     <aside
       className={cn(
         `relative h-screen flex-none border-l bg-card transition-[width] duration-200`,
-        postId ? 'w-[41vw]' : 'w-0',
+        postId ? 'w-[38vw]' : 'w-0',
         className,
       )}
     >
@@ -124,7 +140,7 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote postId={post.id} />
+            <Vote postId={post.id} userId={post.createdById} />
             <Separator className="my-6" />
 
             {/* Comment Input Section */}

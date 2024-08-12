@@ -26,7 +26,7 @@ export function Sidebar({ className }: SidebarProps) {
         className,
       )}
     >
-      <div className="hidden p-5 pt-10 lg:block">
+      <div className="hidden overflow-hidden p-6 pt-10 lg:flex">
         <Link href="/">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +41,7 @@ export function Sidebar({ className }: SidebarProps) {
             <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
           </svg>
         </Link>
+        <span className="ml-2 hidden lg:block">ReThread</span>
       </div>
       <ChevronLeft
         className={cn(

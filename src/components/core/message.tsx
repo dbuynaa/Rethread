@@ -41,7 +41,7 @@ export const Comment = ({
         <p className="py-2 text-sm text-secondary-foreground">
           {comment.content}
         </p>
-        <Vote messageId={comment.id} />
+        <Vote messageId={comment.id} userId={user.id} />
         {session?.user && session.user.id === user.id && (
           <Button
             size={'icon'}

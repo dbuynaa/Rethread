@@ -6,18 +6,26 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { api } from '@/trpc/react';
 import { cn } from '@/lib/utils';
+import { useToast } from '../ui/use-toast';
 
 interface VoteProps {
   postId?: string;
   messageId?: string;
+  userId: string;
   className?: string;
 }
 
-export const Vote: React.FC<VoteProps> = ({ postId, messageId, className }) => {
+export const Vote: React.FC<VoteProps> = ({
+  postId,
+  messageId,
+  userId,
+  className,
+}) => {
   const utils = api.useUtils();
+  const { toast } = useToast();
 
   const { data: voteData } = api.vote.getVote.useQuery(
-    { postId, messageId },
+    { postId, messageId, userId },
     { enabled: !!(postId ?? messageId) },
   );
 
@@ -29,6 +37,13 @@ export const Vote: React.FC<VoteProps> = ({ postId, messageId, className }) => {
       } else if (messageId) {
         void utils.message.getMessages.invalidate();
       }
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'default',
+      });
     },
   });
 

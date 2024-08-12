@@ -44,7 +44,7 @@ export const PostCard = ({
         </CardDescription>
       </CardContent>
       <CardFooter className="flex items-center gap-4">
-        <Vote postId={post.id} />
+        <Vote postId={post.id} userId={post.createdById} />
         <CardDescription>{dayjs(post.createdAt).fromNow()}</CardDescription>
 
         {session.data?.user && session.data.user.id === post.createdById && (
