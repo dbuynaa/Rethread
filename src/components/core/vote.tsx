@@ -26,22 +26,23 @@ export const Vote: React.FC<VoteProps> = ({
   const utils = api.useUtils();
   const { toast } = useToast();
 
-  const onSuccess = () => {
-    void utils.vote.getVote.invalidate({ postId, messageId });
-    if (postId) {
-      void utils.post.getPost.invalidate({ id: postId });
-    } else if (messageId) {
-      void utils.message.getMessages.invalidate();
-    }
-  };
-
   const { data: voteData } = api.vote.getVote.useQuery(
     { postId, messageId, userId },
     { enabled: !!((postId ?? messageId) && userId) },
   );
 
-  const { mutate: voteUpMutation } = api.vote.voteUpMutation.useMutation({
-    onSuccess: onSuccess,
+  const { mutate: vote } = api.vote.voteMutation.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        if (postId) {
+          void utils.vote.getVote.invalidate({ postId });
+          void utils.post.getPosts.invalidate();
+        } else if (messageId) {
+          void utils.vote.getVote.invalidate({ messageId });
+          void utils.message.getMessages.invalidate();
+        }
+      }
+    },
     onError: (error) => {
       toast({
         title: 'Error',
@@ -51,23 +52,8 @@ export const Vote: React.FC<VoteProps> = ({
     },
   });
 
-  const { mutate: voteDeleteMutation } =
-    api.vote.voteDeleteMutation.useMutation({
-      onSuccess: onSuccess,
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'default',
-        });
-      },
-    });
   const handleVote = (value: number) => {
-    if (voteData?.value === value) {
-      voteDeleteMutation({ postId, messageId });
-    } else {
-      voteUpMutation({ postId, messageId, value });
-    }
+    vote({ postId, messageId, value });
   };
 
   return (

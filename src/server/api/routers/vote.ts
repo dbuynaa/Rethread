@@ -9,7 +9,7 @@ import {
 import { TRPCError } from '@trpc/server';
 
 export const voteRouter = createTRPCRouter({
-  voteUpMutation: protectedProcedure
+  voteMutation: protectedProcedure
     .input(
       z.object({
         postId: z.string().optional(),
@@ -28,96 +28,81 @@ export const voteRouter = createTRPCRouter({
         });
       }
 
-      if (!postId && messageId) {
-        await ctx.db.vote.create({
-          data: {
-            userId,
-            messageId,
-            value: value,
-          },
-        });
-        await ctx.db.message.update({
-          where: { id: messageId },
-          data: {
-            points: { increment: value },
-          },
-          select: { points: true },
-        });
-      } else if (postId && !messageId) {
-        await ctx.db.vote.create({
-          data: {
-            userId,
-            messageId,
-            value: value,
-          },
-        });
-        await ctx.db.post.update({
-          where: { id: postId },
-          data: {
-            points: { increment: value },
-          },
-          select: { points: true },
-        });
-      } else return false;
-
-      return true;
-    }),
-
-  voteDeleteMutation: protectedProcedure
-    .input(
-      z.object({
-        postId: z.string().optional(),
-        messageId: z.string().optional(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { postId, messageId } = input;
-      const userId = ctx.session.user.id;
-
-      if (!postId && !messageId) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Either postId or messageId must be provided',
-        });
-      }
-
-      if (!postId && messageId) {
-        await ctx.db.vote.delete({
-          where: {
-            userId_messageId: {
-              userId,
-              messageId,
+      // Use a transaction to ensure data consistency
+      return ctx.db.$transaction(async (tx) => {
+        let existingVote;
+        if (postId) {
+          existingVote = await tx.vote.findUnique({
+            where: {
+              userId_postId: {
+                userId,
+                postId: postId,
+              },
             },
-          },
-        });
-        await ctx.db.message.update({
-          where: { id: messageId },
-          data: {
-            points: { decrement: 1 },
-          },
-          select: { points: true },
-        });
-      } else if (postId && !messageId) {
-        await ctx.db.vote.delete({
-          where: {
-            userId_postId: {
+          });
+        } else if (messageId) {
+          existingVote = await tx.vote.findUnique({
+            where: {
+              userId_messageId: {
+                userId,
+                messageId: messageId,
+              },
+            },
+          });
+        }
+
+        let pointsChange = value;
+
+        if (existingVote) {
+          if (existingVote.value === value) {
+            // Remove vote if clicking the same button
+            await tx.vote.delete({
+              where: { id: existingVote.id },
+            });
+            pointsChange = -value;
+          } else {
+            // Change vote
+            await tx.vote.update({
+              where: { id: existingVote.id },
+              data: { value },
+            });
+            pointsChange = value - existingVote.value;
+          }
+        } else {
+          // Create new vote
+          await tx.vote.create({
+            data: {
               userId,
               postId,
+              messageId,
+              value,
             },
-          },
-        });
-        await ctx.db.post.update({
-          where: { id: postId },
-          data: {
-            points: { decrement: 1 },
-          },
-          select: { points: true },
-        });
-      } else return false;
+          });
+        }
 
-      return true;
+        let points;
+        if (postId) {
+          const updatedTarget = await tx.post.update({
+            where: { id: postId },
+            data: {
+              points: { increment: pointsChange },
+            },
+            select: { points: true },
+          });
+          points = updatedTarget.points;
+        } else if (messageId) {
+          const updatedTarget = await tx.message.update({
+            where: { id: messageId },
+            data: {
+              points: { increment: pointsChange },
+            },
+            select: { points: true },
+          });
+          points = updatedTarget.points;
+        }
+        return points;
+      });
     }),
-
   getVote: publicProcedure
     .input(
       z.object({
