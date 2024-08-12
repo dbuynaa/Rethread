@@ -21,9 +21,10 @@ export const Vote: React.FC<VoteProps> = ({
   messageId,
   userId,
   className,
-  points,
+  points: initialPoints,
 }) => {
   const utils = api.useUtils();
+  const [points, setPoints] = React.useState(initialPoints ?? 0);
   const { toast } = useToast();
 
   const { data: voteData } = api.vote.getVote.useQuery(
@@ -32,23 +33,50 @@ export const Vote: React.FC<VoteProps> = ({
   );
 
   const { mutate: vote } = api.vote.voteMutation.useMutation({
-    onSuccess: (data) => {
-      if (data) {
-        if (postId) {
-          void utils.vote.getVote.invalidate({ postId });
-          void utils.post.getPosts.invalidate();
-        } else if (messageId) {
-          void utils.vote.getVote.invalidate({ messageId });
-          void utils.message.getMessages.invalidate();
-        }
-      }
+    onMutate: async (newVote) => {
+      // Cancel outgoing refetches
+      await utils.vote.getVote.cancel({ postId, messageId, userId });
+
+      // Snapshot the previous value
+      const previousVote = utils.vote.getVote.getData({
+        postId,
+        messageId,
+        userId,
+      });
+
+      // Optimistically update to the new value
+      utils.vote.getVote.setData(
+        { postId, messageId, userId },
+        { value: newVote.value },
+      );
+
+      // Update points optimistically
+      setPoints((prev) => {
+        const diff = (newVote.value ?? 0) - (previousVote?.value ?? 0);
+        return prev + diff;
+      });
+
+      return { previousVote };
     },
-    onError: (error) => {
+    onError: (err, newVote, context) => {
+      // Revert the optimistic update
+      utils.vote.getVote.setData(
+        { postId, messageId, userId },
+        context?.previousVote,
+      );
+      setPoints((prev) => {
+        const diff = (context?.previousVote?.value ?? 0) - (newVote.value ?? 0);
+        return prev + diff;
+      });
       toast({
         title: 'Error',
-        description: error.message,
-        variant: 'default',
+        description: err.message,
+        variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      // Refetch after error or success
+      utils.vote.getVote.invalidate({ postId, messageId, userId });
     },
   });
 
@@ -61,7 +89,7 @@ export const Vote: React.FC<VoteProps> = ({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          handleVote(1);
+          handleVote(voteData?.value === 1 ? 0 : 1);
         }}
         variant={voteData?.value === 1 ? 'default' : 'ghost'}
         size="sm"
@@ -72,7 +100,7 @@ export const Vote: React.FC<VoteProps> = ({
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          handleVote(-1);
+          handleVote(voteData?.value === -1 ? 0 : -1);
         }}
         variant={voteData?.value === -1 ? 'default' : 'ghost'}
         size="sm"

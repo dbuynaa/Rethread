@@ -15,94 +15,93 @@ export const voteRouter = createTRPCRouter({
         postId: z.string().optional(),
         messageId: z.string().optional(),
         value: z.number().min(-1).max(1),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
-      const { postId, messageId, value } = input;
       const userId = ctx.session.user.id;
+      const { postId, messageId, value } = input;
 
       if (!postId && !messageId) {
         throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Either postId or messageId must be provided',
+          code: "BAD_REQUEST",
+          message: "Either postId or messageId must be provided",
         });
       }
 
-      // Use a transaction to ensure data consistency
-      return ctx.db.$transaction(async (tx) => {
-        let existingVote;
-        if (postId) {
-          existingVote = await tx.vote.findUnique({
+      // Check if the user has already voted
+      const existingVote = postId ? await ctx.db.vote.findUnique({
+        where: {
+          userId_postId: {
+            userId,
+            postId: postId,
+          },
+        },
+      }) : await ctx.db.vote.findUnique({
+        where: {
+          userId_messageId: {
+            userId,
+            messageId: messageId!,
+          },
+        },
+      });
+
+      if (existingVote) {
+        // Update existing vote
+        if (value === 0) {
+          // Remove vote if value is 0
+          await ctx.db.vote.delete({
             where: {
-              userId_postId: {
-                userId,
-                postId: postId,
-              },
+              id: existingVote.id,
             },
           });
-        } else if (messageId) {
-          existingVote = await tx.vote.findUnique({
-            where: {
-              userId_messageId: {
-                userId,
-                messageId: messageId,
-              },
-            },
-          });
-        }
-
-        let pointsChange = value;
-
-        if (existingVote) {
-          if (existingVote.value === value) {
-            // Remove vote if clicking the same button
-            await tx.vote.delete({
-              where: { id: existingVote.id },
-            });
-            pointsChange = -value;
-          } else {
-            // Change vote
-            await tx.vote.update({
-              where: { id: existingVote.id },
-              data: { value },
-            });
-            pointsChange = value - existingVote.value;
-          }
         } else {
-          // Create new vote
-          await tx.vote.create({
+          // Update vote value
+          await ctx.db.vote.update({
+            where: {
+              id: existingVote.id,
+            },
             data: {
-              userId,
-              postId,
-              messageId,
               value,
             },
           });
         }
+      } else if (value !== 0) {
+        // Create new vote if it doesn't exist and value is not 0
+        await ctx.db.vote.create({
+          data: {
+            userId,
+            postId,
+            messageId,
+            value,
+          },
+        });
+      }
 
-        let points;
-        if (postId) {
-          const updatedTarget = await tx.post.update({
-            where: { id: postId },
-            data: {
-              points: { increment: pointsChange },
+      // Update the points on the post or message
+      if (postId) {
+        await ctx.db.post.update({
+          where: { id: postId },
+          data: {
+            points: {
+              increment: value - (existingVote?.value ?? 0),
             },
-            select: { points: true },
-          });
-          points = updatedTarget.points;
-        } else if (messageId) {
-          const updatedTarget = await tx.message.update({
-            where: { id: messageId },
-            data: {
-              points: { increment: pointsChange },
+          },
+        });
+      } else if (messageId) {
+        await ctx.db.message.update({
+          where: { id: messageId },
+          data: {
+            points: {
+              increment: value - (existingVote?.value ?? 0),
             },
-            select: { points: true },
-          });
-          points = updatedTarget.points;
-        }
-        return points;
-      });
+          },
+        });
+      }
+
+      return { success: true };
     }),
+
+
   getVote: publicProcedure
     .input(
       z.object({
