@@ -3,12 +3,9 @@ const config = {
   env: {
     browser: true,
     node: true,
-    es2020: true,
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    sourceType: 'module',
-    ecmaFeatures: { jsx: true },
     project: true,
   },
   plugins: ['@typescript-eslint', 'react', 'prettier'],
@@ -40,7 +37,7 @@ const config = {
       'warn',
       {
         prefer: 'type-imports',
-        fixStyle: 'inline-type-imports',
+        // fixStyle: 'inline-type-imports',
       },
     ],
     '@typescript-eslint/no-misused-promises': [
@@ -62,7 +59,9 @@ const config = {
       version: 'detect',
     },
     'import/resolver': {
-      typescript: {}, // this loads <rootdir>/tsconfig.json to eslint
+      typescript: {
+        project: './tsconfig.json',
+      }, // this loads <rootdir>/tsconfig.json to eslint
     },
   },
   ignorePatterns: ['node_modules/*', 'next.config.js'],

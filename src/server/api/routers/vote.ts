@@ -9,7 +9,7 @@ import {
 import { TRPCError } from '@trpc/server';
 
 export const voteRouter = createTRPCRouter({
-  voteMutation: protectedProcedure
+  voteUpMutation: protectedProcedure
     .input(
       z.object({
         postId: z.string().optional(),
@@ -28,88 +28,94 @@ export const voteRouter = createTRPCRouter({
         });
       }
 
-      // Use a transaction to ensure data consistency
-      return ctx.db.$transaction(async (tx) => {
-        let existingVote;
-        if (postId) {
-          existingVote = await tx.vote.findUnique({
-            where: {
-              userId_postId: {
-                userId,
-                postId: postId,
-              },
-            },
-          });
-        } else if (messageId) {
-          existingVote = await tx.vote.findUnique({
-            where: {
-              userId_messageId: {
-                userId,
-                messageId: messageId,
-              },
-            },
-          });
-        }
+      if (!postId && messageId) {
+        await ctx.db.vote.create({
+          data: {
+            userId,
+            messageId,
+            value: value,
+          },
+        });
+        await ctx.db.message.update({
+          where: { id: messageId },
+          data: {
+            points: { increment: value },
+          },
+          select: { points: true },
+        });
+      } else if (postId && !messageId) {
+        await ctx.db.vote.create({
+          data: {
+            userId,
+            messageId,
+            value: value,
+          },
+        });
+        await ctx.db.post.update({
+          where: { id: postId },
+          data: {
+            points: { increment: value },
+          },
+          select: { points: true },
+        });
+      } else return false;
 
-        let pointsChange = value;
+      return true;
+    }),
 
-        if (existingVote) {
-          if (existingVote.value === value) {
-            // Remove vote if clicking the same button
-            await tx.vote.delete({
-              where: { id: existingVote.id },
-            });
-            pointsChange = -value;
-          } else {
-            // Change vote
-            await tx.vote.update({
-              where: { id: existingVote.id },
-              data: { value },
-            });
-            pointsChange = value - existingVote.value;
-          }
-        } else {
-          // Create new vote
-          await tx.vote.create({
-            data: {
+  voteDeleteMutation: protectedProcedure
+    .input(
+      z.object({
+        postId: z.string().optional(),
+        messageId: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { postId, messageId } = input;
+      const userId = ctx.session.user.id;
+
+      if (!postId && !messageId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Either postId or messageId must be provided',
+        });
+      }
+
+      if (!postId && messageId) {
+        await ctx.db.vote.delete({
+          where: {
+            userId_messageId: {
+              userId,
+              messageId,
+            },
+          },
+        });
+        await ctx.db.message.update({
+          where: { id: messageId },
+          data: {
+            points: { decrement: 1 },
+          },
+          select: { points: true },
+        });
+      } else if (postId && !messageId) {
+        await ctx.db.vote.delete({
+          where: {
+            userId_postId: {
               userId,
               postId,
-              messageId,
-              value,
             },
-          });
-        }
+          },
+        });
+        await ctx.db.post.update({
+          where: { id: postId },
+          data: {
+            points: { decrement: 1 },
+          },
+          select: { points: true },
+        });
+      } else return false;
 
-        let points;
-        if (postId) {
-          const updatedTarget = await tx.post.update({
-            where: { id: postId },
-            data: {
-              points: { increment: pointsChange },
-            },
-            select: { points: true },
-          });
-          points = updatedTarget.points;
-        } else if (messageId) {
-          const updatedTarget = await tx.message.update({
-            where: { id: messageId },
-            data: {
-              points: { increment: pointsChange },
-            },
-            select: { points: true },
-          });
-          points = updatedTarget.points;
-        }
-        return {
-          success: true,
-          // userVote: existingVote
-          //   ? existingVote.value === value
-          //     ? 0
-          //     : value
-          //   : value,
-          points: points,
-        };
-      });
+      return true;
     }),
 
   getVote: publicProcedure
@@ -122,42 +128,26 @@ export const voteRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { postId, messageId, userId } = input;
-      // const userId = ctx.session.user.id;
-
-      const [vote, target] = await Promise.all([
-        postId
-          ? ctx.db.vote.findUnique({
-              where: {
-                userId_postId: {
-                  userId,
-                  postId: postId,
-                },
+      const vote = postId
+        ? ctx.db.vote.findUnique({
+            where: {
+              userId_postId: {
+                userId,
+                postId: postId,
               },
-              select: { value: true },
-            })
-          : ctx.db.vote.findUnique({
-              where: {
-                userId_messageId: {
-                  userId,
-                  messageId: messageId!,
-                },
+            },
+            select: { value: true },
+          })
+        : ctx.db.vote.findUnique({
+            where: {
+              userId_messageId: {
+                userId,
+                messageId: messageId!,
               },
-              select: { value: true },
-            }),
-        postId
-          ? ctx.db.post.findUnique({
-              where: { id: postId },
-              select: { points: true },
-            })
-          : ctx.db.message.findUnique({
-              where: { id: messageId },
-              select: { points: true },
-            }),
-      ]);
+            },
+            select: { value: true },
+          });
 
-      return {
-        userVote: vote?.value ?? 0,
-        points: target?.points ?? 0,
-      };
+      return vote;
     }),
 });

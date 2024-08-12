@@ -12,6 +12,7 @@ interface VoteProps {
   postId?: string;
   messageId?: string;
   userId: string;
+  points?: number;
   className?: string;
 }
 
@@ -20,24 +21,27 @@ export const Vote: React.FC<VoteProps> = ({
   messageId,
   userId,
   className,
+  points,
 }) => {
   const utils = api.useUtils();
   const { toast } = useToast();
 
+  const onSuccess = () => {
+    void utils.vote.getVote.invalidate({ postId, messageId });
+    if (postId) {
+      void utils.post.getPost.invalidate({ id: postId });
+    } else if (messageId) {
+      void utils.message.getMessages.invalidate();
+    }
+  };
+
   const { data: voteData } = api.vote.getVote.useQuery(
     { postId, messageId, userId },
-    { enabled: !!(postId ?? messageId) },
+    { enabled: !!((postId ?? messageId) && userId) },
   );
 
-  const { mutate: vote } = api.vote.voteMutation.useMutation({
-    onSuccess: () => {
-      void utils.vote.getVote.invalidate({ postId, messageId });
-      if (postId) {
-        void utils.post.getPost.invalidate({ id: postId });
-      } else if (messageId) {
-        void utils.message.getMessages.invalidate();
-      }
-    },
+  const { mutate: voteUpMutation } = api.vote.voteUpMutation.useMutation({
+    onSuccess: onSuccess,
     onError: (error) => {
       toast({
         title: 'Error',
@@ -47,8 +51,23 @@ export const Vote: React.FC<VoteProps> = ({
     },
   });
 
+  const { mutate: voteDeleteMutation } =
+    api.vote.voteDeleteMutation.useMutation({
+      onSuccess: onSuccess,
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'default',
+        });
+      },
+    });
   const handleVote = (value: number) => {
-    vote({ postId, messageId, value });
+    if (voteData?.value === value) {
+      voteDeleteMutation({ postId, messageId });
+    } else {
+      voteUpMutation({ postId, messageId, value });
+    }
   };
 
   return (
@@ -58,18 +77,18 @@ export const Vote: React.FC<VoteProps> = ({
           e.stopPropagation();
           handleVote(1);
         }}
-        variant={voteData?.userVote === 1 ? 'default' : 'ghost'}
+        variant={voteData?.value === 1 ? 'default' : 'ghost'}
         size="sm"
       >
         <ArrowUpIcon />
       </Button>
-      <span>{voteData?.points ?? 0}</span>
+      <span>{points ?? 0}</span>
       <Button
         onClick={(e) => {
           e.stopPropagation();
           handleVote(-1);
         }}
-        variant={voteData?.userVote === -1 ? 'default' : 'ghost'}
+        variant={voteData?.value === -1 ? 'default' : 'ghost'}
         size="sm"
       >
         <ArrowDownIcon />
