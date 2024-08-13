@@ -1,17 +1,18 @@
 // /components/core/Vote.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { api } from '@/trpc/react';
 import { cn } from '@/lib/utils';
 import { useToast } from '../ui/use-toast';
+import { useSession } from 'next-auth/react';
 
 interface VoteProps {
   postId?: string;
   messageId?: string;
-  userId: string;
+  // userId: string;
   points?: number;
   className?: string;
 }
@@ -19,34 +20,35 @@ interface VoteProps {
 export const Vote: React.FC<VoteProps> = ({
   postId,
   messageId,
-  userId,
   className,
   points: initialPoints,
 }) => {
   const utils = api.useUtils();
-  const [points, setPoints] = React.useState(initialPoints ?? 0);
+  const [points, setPoints] = useState(initialPoints ?? 0);
   const { toast } = useToast();
+  const session = useSession();
+  // const { data: session } = api.auth.getSession.useQuery();
 
   const { data: voteData } = api.vote.getVote.useQuery(
-    { postId, messageId, userId },
-    { enabled: !!((postId ?? messageId) && userId) },
+    { postId, messageId },
+    { enabled: !!((postId ?? messageId) && session.data?.user) },
   );
 
   const { mutate: vote } = api.vote.voteMutation.useMutation({
     onMutate: async (newVote) => {
       // Cancel outgoing refetches
-      await utils.vote.getVote.cancel({ postId, messageId, userId });
+      await utils.vote.getVote.cancel({ postId, messageId });
 
       // Snapshot the previous value
       const previousVote = utils.vote.getVote.getData({
         postId,
         messageId,
-        userId,
+        // userId,
       });
 
       // Optimistically update to the new value
       utils.vote.getVote.setData(
-        { postId, messageId, userId },
+        { postId, messageId },
         { value: newVote.value },
       );
 
@@ -60,10 +62,7 @@ export const Vote: React.FC<VoteProps> = ({
     },
     onError: (err, newVote, context) => {
       // Revert the optimistic update
-      utils.vote.getVote.setData(
-        { postId, messageId, userId },
-        context?.previousVote,
-      );
+      utils.vote.getVote.setData({ postId, messageId }, context?.previousVote);
       setPoints((prev) => {
         const diff = (context?.previousVote?.value ?? 0) - (newVote.value ?? 0);
         return prev + diff;
@@ -76,12 +75,19 @@ export const Vote: React.FC<VoteProps> = ({
     },
     onSettled: () => {
       // Refetch after error or success
-      utils.vote.getVote.invalidate({ postId, messageId, userId });
+      void utils.vote.getVote.invalidate({ postId, messageId });
     },
   });
 
   const handleVote = (value: number) => {
-    vote({ postId, messageId, value });
+    if (!session.data?.user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to vote',
+        variant: 'destructive',
+      });
+      return;
+    } else vote({ postId, messageId, value });
   };
 
   return (

@@ -140,7 +140,7 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote postId={post.id} userId={post.createdById} />
+            <Vote postId={post.id} />
             <Separator className="my-6" />
 
             {/* Comment Input Section */}

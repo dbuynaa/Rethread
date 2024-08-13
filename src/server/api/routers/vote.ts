@@ -1,11 +1,7 @@
 // /server/api/routers/vote.ts
 
 import { z } from 'zod';
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from '@/server/api/trpc';
+import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { TRPCError } from '@trpc/server';
 
 export const voteRouter = createTRPCRouter({
@@ -15,7 +11,7 @@ export const voteRouter = createTRPCRouter({
         postId: z.string().optional(),
         messageId: z.string().optional(),
         value: z.number().min(-1).max(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
@@ -23,27 +19,29 @@ export const voteRouter = createTRPCRouter({
 
       if (!postId && !messageId) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Either postId or messageId must be provided",
+          code: 'BAD_REQUEST',
+          message: 'Either postId or messageId must be provided',
         });
       }
 
       // Check if the user has already voted
-      const existingVote = postId ? await ctx.db.vote.findUnique({
-        where: {
-          userId_postId: {
-            userId,
-            postId: postId,
-          },
-        },
-      }) : await ctx.db.vote.findUnique({
-        where: {
-          userId_messageId: {
-            userId,
-            messageId: messageId!,
-          },
-        },
-      });
+      const existingVote = postId
+        ? await ctx.db.vote.findUnique({
+            where: {
+              userId_postId: {
+                userId,
+                postId: postId,
+              },
+            },
+          })
+        : await ctx.db.vote.findUnique({
+            where: {
+              userId_messageId: {
+                userId,
+                messageId: messageId!,
+              },
+            },
+          });
 
       if (existingVote) {
         // Update existing vote
@@ -101,17 +99,17 @@ export const voteRouter = createTRPCRouter({
       return { success: true };
     }),
 
-
-  getVote: publicProcedure
+  getVote: protectedProcedure
     .input(
       z.object({
         postId: z.string().optional(),
         messageId: z.string().optional(),
-        userId: z.string(),
+        // userId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { postId, messageId, userId } = input;
+      const userId = ctx.session.user.id;
+      const { postId, messageId } = input;
       const vote = postId
         ? ctx.db.vote.findUnique({
             where: {
