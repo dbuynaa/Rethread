@@ -36,7 +36,9 @@ export function SidebarRight({ className }: SidebarProps) {
 
   const { data: post, isLoading } = api.post.getPost.useQuery(
     { id: postId! },
-    { enabled: !!postId },
+    {
+      enabled: !!postId,
+    },
   );
 
   const {
@@ -140,7 +142,7 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote postId={post.id} />
+            <Vote points={post.points} postId={post.id} />
             <Separator className="my-6" />
 
             {/* Comment Input Section */}

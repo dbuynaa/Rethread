@@ -24,7 +24,7 @@ export default function ChannelContainer({
   const [channelDetail] = api.channel.channelDetail.useSuspenseQuery({
     id: params.id,
   });
-  const { data: posts, isLoading } = api.post.getPosts.useQuery({
+  const [posts] = api.post.getPosts.useSuspenseQuery({
     channelId: params.id,
     search: searchTerm,
   });
@@ -48,7 +48,7 @@ export default function ChannelContainer({
         </div>
       </CardHeader>
       <CardContent>
-        <PostsContainer isLoading={isLoading} posts={posts} />
+        <PostsContainer isLoading={false} posts={posts} />
       </CardContent>
     </Card>
   );

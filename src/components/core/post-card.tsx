@@ -13,6 +13,7 @@ import { Button } from '../ui/button';
 import { Icons } from '../icons';
 import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
 import { useSession } from 'next-auth/react';
+import { api } from '@/trpc/react';
 extend(relativeTime);
 
 export const PostCard = ({
@@ -29,6 +30,7 @@ export const PostCard = ({
   onDelete: (id: string) => void;
 }) => {
   const session = useSession();
+  void api.vote.getVote.useQuery({ postId: post.id });
   return (
     <Card
       onClick={() => onClick(post.id)}

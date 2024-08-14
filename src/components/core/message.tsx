@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { useSession } from 'next-auth/react';
+import { api } from '@/trpc/react';
 
 extend(relativeTime);
 
@@ -25,6 +26,10 @@ export const Comment = ({
   handleDelete,
 }: MessageProps) => {
   const { data: session } = useSession();
+  void api.vote.getVote.useQuery({
+    messageId: comment.id,
+  });
+
   return (
     <div key={comment.id} className="relative mb-4 flex items-start space-x-4">
       <Avatar className="mr-3 h-10 w-10">
@@ -41,7 +46,7 @@ export const Comment = ({
         <p className="py-2 text-sm text-secondary-foreground">
           {comment.content}
         </p>
-        <Vote messageId={comment.id} />
+        <Vote points={comment.points} messageId={comment.id} />
         {session?.user && session.user.id === user.id && (
           <Button
             size={'icon'}
