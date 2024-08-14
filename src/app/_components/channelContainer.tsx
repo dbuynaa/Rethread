@@ -1,18 +1,10 @@
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { api } from '@/trpc/react';
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CreatePostModal } from '../channel/components/postCreateModal';
 import { PostsContainer } from './postsContainer';
+import { useSearch } from '@/hooks/useSearch';
 
 export default function ChannelContainer({
   params,
@@ -20,22 +12,19 @@ export default function ChannelContainer({
   params: { id: string };
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const { setParam } = useSearch();
 
-  const [channelDetail] = api.channel.channelDetail.useSuspenseQuery({
-    id: params.id,
-  });
-  const [posts] = api.post.getPosts.useSuspenseQuery({
-    channelId: params.id,
-    search: searchTerm,
-  });
+  useEffect(() => {
+    if (searchTerm) {
+      setTimeout(() => {
+        setParam('search', searchTerm);
+      }, 500);
+    }
+  }, [searchTerm]);
 
   return (
-    <Card>
-      <CardHeader className="space-y-2">
-        <CardTitle>{channelDetail.name}</CardTitle>
-        <CardDescription>
-          {dayjs(channelDetail.createdAt).format('YYYY-MM-DD')}
-        </CardDescription>
+    <div className="w-full space-y-6">
+      <div className="space-y-2">
         <div className="flex items-center">
           <Input
             type="text"
@@ -44,12 +33,10 @@ export default function ChannelContainer({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="mr-2"
           />
-          <CreatePostModal channelId={channelDetail.id} />
+          <CreatePostModal channelId={params.id} />
         </div>
-      </CardHeader>
-      <CardContent>
-        <PostsContainer isLoading={false} posts={posts} />
-      </CardContent>
-    </Card>
+      </div>
+      <PostsContainer channelId={params.id} />
+    </div>
   );
 }

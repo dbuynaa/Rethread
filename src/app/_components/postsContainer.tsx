@@ -1,20 +1,20 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { type Post } from '@prisma/client';
+// import { type Post } from '@prisma/client';
 import { useSearch } from '@/hooks/useSearch';
 import { PostCard } from '@/components/core';
 import { api } from '@/trpc/react';
+import { PageContainer } from '@/components/layout';
 
-export function PostsContainer({
-  isLoading,
-  posts,
-}: {
-  isLoading: boolean;
-  posts: Post[] | undefined;
-}) {
+export function PostsContainer({ channelId }: { channelId: string }) {
   const { setParam } = useSearch();
   const utils = api.useUtils();
+  const { data: posts, isLoading } = api.post.getPosts.useQuery({
+    channelId: channelId,
+    // search: searchTerm,
+  });
+
   const { mutate: deletePost, isPending: deleteLoading } =
     api.post.delete.useMutation({
       onSuccess: () => {
@@ -35,7 +35,7 @@ export function PostsContainer({
   };
 
   return (
-    <div>
+    <PageContainer>
       {isLoading && (
         <>
           <Skeleton className="mb-2 h-8 w-full" />
@@ -56,6 +56,6 @@ export function PostsContainer({
           />
         ))}
       {!isLoading && posts && posts.length === 0 && <p>No posts found</p>}
-    </div>
+    </PageContainer>
   );
 }

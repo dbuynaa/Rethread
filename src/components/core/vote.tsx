@@ -76,6 +76,8 @@ export const Vote: React.FC<VoteProps> = ({
     onSettled: () => {
       // Refetch after error or success
       void utils.vote.getVote.invalidate({ postId, messageId });
+      if (postId) void utils.post.invalidate();
+      if (messageId) void utils.message.invalidate();
     },
   });
 
