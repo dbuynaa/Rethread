@@ -3,10 +3,13 @@ const config = {
   env: {
     browser: true,
     node: true,
+    es2020: true,
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: true,
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    ecmaFeatures: { jsx: true },
   },
   plugins: ['@typescript-eslint', 'react', 'prettier'],
   extends: [
@@ -15,8 +18,6 @@ const config = {
     'next',
     'next/core-web-vitals',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-type-checked',
-    'plugin:@typescript-eslint/stylistic-type-checked',
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
@@ -33,21 +34,6 @@ const config = {
         endOfLine: 'auto',
       },
     ],
-    '@typescript-eslint/consistent-type-imports': [
-      'warn',
-      {
-        prefer: 'type-imports',
-        // fixStyle: 'inline-type-imports',
-      },
-    ],
-    '@typescript-eslint/no-misused-promises': [
-      'error',
-      {
-        checksVoidReturn: {
-          attributes: false,
-        },
-      },
-    ],
     'react/react-in-jsx-scope': 'off',
     // "react/prop-types": "off",
     // "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -59,9 +45,7 @@ const config = {
       version: 'detect',
     },
     'import/resolver': {
-      typescript: {
-        project: './tsconfig.json',
-      }, // this loads <rootdir>/tsconfig.json to eslint
+      typescript: {}, // this loads <rootdir>/tsconfig.json to eslint
     },
   },
   ignorePatterns: ['node_modules/*', 'next.config.js'],

@@ -1,8 +1,8 @@
 import { api, HydrateClient } from '@/trpc/server';
-import { HomePage } from './_components/post';
 import { PageContainer } from '@/components/layout';
 import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
 import { extend } from 'dayjs';
+import { PostsContainer } from './_components/postsContainer';
 extend(relativeTime);
 
 export default function Page() {
@@ -17,7 +17,7 @@ export default function Page() {
               Hi, Welcome back 👋
             </h2>
           </div>
-          <HomePage />
+          <PostsContainer />
         </div>
       </PageContainer>
     </HydrateClient>

@@ -7,7 +7,7 @@ import { PostCard } from '@/components/core';
 import { api } from '@/trpc/react';
 import { PageContainer } from '@/components/layout';
 
-export function PostsContainer({ channelId }: { channelId: string }) {
+export function PostsContainer({ channelId }: { channelId?: string }) {
   const { setParam } = useSearch();
   const utils = api.useUtils();
   const { data: posts, isLoading } = api.post.getPosts.useQuery({
