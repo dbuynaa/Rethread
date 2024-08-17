@@ -56,10 +56,10 @@ model Post {
     content     String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
-    channelsId  String
+    channelId   String
     createdById String
 
-    channels  Channel   @relation(fields: [channelsId], references: [id])
+    channel   Channel   @relation(fields: [channelId], references: [id])
     createdBy User      @relation(fields: [createdById], references: [id])
     messages  Message[]
     votes     Vote[]

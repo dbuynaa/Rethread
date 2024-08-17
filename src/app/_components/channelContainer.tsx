@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { CreatePostModal } from '../channel/components/postCreateModal';
 import { PostsContainer } from './postsContainer';
 import { useSearch } from '@/hooks/useSearch';
+import { api } from '@/trpc/react';
 
 export default function ChannelContainer({
   params,
@@ -13,7 +14,9 @@ export default function ChannelContainer({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { setParam } = useSearch();
-
+  const [posts, { isLoading }] = api.post.getPosts.useSuspenseQuery({
+    channelId: params.id,
+  });
   useEffect(() => {
     if (searchTerm) {
       setTimeout(() => {
@@ -36,7 +39,7 @@ export default function ChannelContainer({
           <CreatePostModal channelId={params.id} />
         </div>
       </div>
-      <PostsContainer channelId={params.id} />
+      <PostsContainer posts={posts} isLoading={isLoading} />
     </div>
   );
 }

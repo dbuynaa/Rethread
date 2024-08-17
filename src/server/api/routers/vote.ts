@@ -96,7 +96,7 @@ export const voteRouter = createTRPCRouter({
         });
       }
 
-      return { success: true };
+      return true;
     }),
 
   getVote: protectedProcedure
@@ -104,14 +104,13 @@ export const voteRouter = createTRPCRouter({
       z.object({
         postId: z.string().optional(),
         messageId: z.string().optional(),
-        // userId: z.string(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const { postId, messageId } = input;
       const vote = postId
-        ? ctx.db.vote.findUnique({
+        ? await ctx.db.vote.findUnique({
             where: {
               userId_postId: {
                 userId,
@@ -120,7 +119,7 @@ export const voteRouter = createTRPCRouter({
             },
             select: { value: true },
           })
-        : ctx.db.vote.findUnique({
+        : await ctx.db.vote.findUnique({
             where: {
               userId_messageId: {
                 userId,

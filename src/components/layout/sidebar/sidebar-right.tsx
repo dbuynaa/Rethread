@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import { Comment, Vote } from '@/components/core';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
+import { ResizablePanel } from '@/components/ui/resizable';
 
 interface SidebarProps {
   className?: string;
@@ -56,12 +57,13 @@ export function SidebarRight({ className }: SidebarProps) {
   const handleClick = () => {
     setParam('post', null);
   };
+
   const handleDelete = (id: string) => {
     deletePost(
       { id },
       {
-        async onSuccess() {
-          await refetch();
+        onSuccess() {
+          refetch();
         },
         onError(error) {
           toast({
@@ -82,8 +84,8 @@ export function SidebarRight({ className }: SidebarProps) {
         postId: postId,
       },
       {
-        async onSuccess() {
-          await refetch();
+        onSuccess() {
+          refetch();
           setComment('');
         },
         onError(error) {
@@ -98,10 +100,13 @@ export function SidebarRight({ className }: SidebarProps) {
   };
 
   return (
-    <aside
+    <ResizablePanel
+      defaultSize={38}
+      minSize={30}
+      maxSize={50}
       className={cn(
         `relative h-screen flex-none border-l bg-card transition-[width] duration-200`,
-        postId ? 'w-[38vw]' : 'w-0',
+        postId ? 'block' : 'hidden',
         className,
       )}
     >
@@ -142,7 +147,7 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote points={post.points} postId={post.id} />
+            <Vote points={post.points} voteData={post.votes[0] || undefined} />
             <Separator className="my-6" />
 
             {/* Comment Input Section */}
@@ -179,6 +184,7 @@ export function SidebarRight({ className }: SidebarProps) {
                   handleDelete={handleDelete}
                   key={comment.id}
                   comment={comment}
+                  userVote={comment.votes[0]}
                   user={comment.user}
                   loading={deletePending}
                 />
@@ -196,6 +202,6 @@ export function SidebarRight({ className }: SidebarProps) {
           </Button>
         </ScrollArea>
       )}
-    </aside>
+    </ResizablePanel>
   );
 }

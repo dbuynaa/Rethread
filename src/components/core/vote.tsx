@@ -12,53 +12,43 @@ import { useSession } from 'next-auth/react';
 interface VoteProps {
   postId?: string;
   messageId?: string;
-  // userId: string;
   points?: number;
+  voteData?: { value: number };
   className?: string;
 }
 
 export const Vote: React.FC<VoteProps> = ({
-  postId,
-  messageId,
   className,
   points: initialPoints,
+  voteData: previousVote,
+  postId,
+  messageId,
 }) => {
   const utils = api.useUtils();
   const [points, setPoints] = useState(initialPoints ?? 0);
+  const [voteData, setVoteData] = useState(previousVote);
   const { toast } = useToast();
   const session = useSession();
-  // const { data: session } = api.auth.getSession.useQuery();
 
-  const { data: voteData } = api.vote.getVote.useQuery(
-    { postId, messageId },
-    { enabled: !!((postId ?? messageId) && session.data?.user) },
-  );
-
+  console.log('voteData', voteData);
   const { mutate: vote } = api.vote.voteMutation.useMutation({
     onMutate: async (newVote) => {
+      try {
+        await utils.vote.getVote.cancel({ postId, messageId });
+
+        // Update points optimistically
+        setPoints((prev) => {
+          const diff = (newVote.value ?? 0) - (previousVote?.value ?? 0);
+          return prev + diff;
+        });
+        setVoteData(newVote);
+
+        // Return a context object with the snapshotted value
+        return { previousVote };
+      } catch (error) {
+        console.error('Error during optimistic update:', error);
+      }
       // Cancel outgoing refetches
-      await utils.vote.getVote.cancel({ postId, messageId });
-
-      // Snapshot the previous value
-      const previousVote = utils.vote.getVote.getData({
-        postId,
-        messageId,
-        // userId,
-      });
-
-      // Optimistically update to the new value
-      utils.vote.getVote.setData(
-        { postId, messageId },
-        { value: newVote.value },
-      );
-
-      // Update points optimistically
-      setPoints((prev) => {
-        const diff = (newVote.value ?? 0) - (previousVote?.value ?? 0);
-        return prev + diff;
-      });
-
-      return { previousVote };
     },
     onError: (err, newVote, context) => {
       // Revert the optimistic update
@@ -72,10 +62,10 @@ export const Vote: React.FC<VoteProps> = ({
         description: err.message,
         variant: 'destructive',
       });
+      console.log('Error during optimistic update:', err);
     },
     onSettled: () => {
       // Refetch after error or success
-      void utils.vote.getVote.invalidate({ postId, messageId });
       if (postId) void utils.post.invalidate();
       if (messageId) void utils.message.invalidate();
     },
@@ -99,7 +89,11 @@ export const Vote: React.FC<VoteProps> = ({
           e.stopPropagation();
           handleVote(voteData?.value === 1 ? 0 : 1);
         }}
-        variant={voteData?.value === 1 ? 'default' : 'ghost'}
+        className={`${
+          voteData?.value === 1 ? 'text-green-500 hover:text-green-600' : ''
+        }`}
+        variant={'ghost'}
+        // variant={voteData?.value === 1 ? 'default' : 'ghost'}
         size="sm"
       >
         <ArrowUpIcon />
@@ -110,7 +104,11 @@ export const Vote: React.FC<VoteProps> = ({
           e.stopPropagation();
           handleVote(voteData?.value === -1 ? 0 : -1);
         }}
-        variant={voteData?.value === -1 ? 'default' : 'ghost'}
+        className={`${
+          voteData?.value === -1 ? 'text-red-500 hover:text-red-600' : ''
+        }`}
+        variant={'ghost'}
+        // variant={voteData?.value === -1 ? 'default' : 'ghost'}
         size="sm"
       >
         <ArrowDownIcon />

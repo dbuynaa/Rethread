@@ -6,29 +6,29 @@ import { useSearch } from '@/hooks/useSearch';
 import { PostCard } from '@/components/core';
 import { api } from '@/trpc/react';
 import { PageContainer } from '@/components/layout';
+import { Post } from '@prisma/client';
 
-export function PostsContainer({ channelId }: { channelId?: string }) {
+export type PostType = Post & {
+  userVote?: { value: number };
+};
+
+export function PostsContainer({
+  posts,
+  isLoading,
+}: {
+  posts?: Post[];
+  isLoading?: boolean;
+}) {
   const { setParam } = useSearch();
   const utils = api.useUtils();
-  const { data: posts, isLoading } = api.post.getPosts.useQuery({
-    channelId: channelId,
-    // search: searchTerm,
-  });
 
-  const { mutate: deletePost, isPending: deleteLoading } =
+  const { mutate: deletePost, isPending: isDeleting } =
     api.post.delete.useMutation({
       onSuccess: () => {
         setParam('post', null);
         void utils.post.getPosts.invalidate();
       },
     });
-
-  const handleClick = (id: string) => {
-    setParam('post', id);
-  };
-  const handleDelete = (id: string) => {
-    deletePost({ id });
-  };
 
   const handleUpdate = (id: string) => {
     console.log(id);
@@ -47,15 +47,15 @@ export function PostsContainer({ channelId }: { channelId?: string }) {
         posts.length > 0 &&
         posts.map((post) => (
           <PostCard
-            onDelete={handleDelete}
+            onDelete={(id) => deletePost({ id })}
             onUpdate={handleUpdate}
-            onClick={handleClick}
-            loading={deleteLoading}
             key={post.id}
             post={post}
+            onClick={(id) => setParam('post', id)}
+            isDeleting={isDeleting}
           />
         ))}
-      {!isLoading && posts && posts.length === 0 && <p>No posts found</p>}
+      {posts && posts.length === 0 && <p>No posts found</p>}
     </PageContainer>
   );
 }

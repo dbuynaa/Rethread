@@ -44,8 +44,8 @@ export function CreatePostModal({ channelId }: { channelId: string }) {
 
   function onSubmit(values: z.infer<typeof postCreateInput>) {
     createPost(values, {
-      async onSuccess() {
-        await utils.post.invalidate();
+      onSuccess() {
+        void utils.post.getPosts.invalidate();
         form.reset();
         setOpen(false);
         toast({
