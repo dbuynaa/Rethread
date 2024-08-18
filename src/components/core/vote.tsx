@@ -34,8 +34,6 @@ export const Vote: React.FC<VoteProps> = ({
   const { mutate: vote } = api.vote.voteMutation.useMutation({
     onMutate: async (newVote) => {
       try {
-        await utils.vote.getVote.cancel({ postId, messageId });
-
         // Update points optimistically
         setPoints((prev) => {
           const diff = (newVote.value ?? 0) - (previousVote?.value ?? 0);

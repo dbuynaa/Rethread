@@ -147,7 +147,11 @@ export function SidebarRight({ className }: SidebarProps) {
                 </p>
               </div>
             </div>
-            <Vote points={post.points} voteData={post.votes[0] || undefined} />
+            <Vote
+              points={post.points}
+              postId={post.id}
+              voteData={post.votes[0] || undefined}
+            />
             <Separator className="my-6" />
 
             {/* Comment Input Section */}
