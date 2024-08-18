@@ -63,7 +63,7 @@ export function SidebarRight({ className }: SidebarProps) {
       { id },
       {
         onSuccess() {
-          refetch();
+          void refetch();
         },
         onError(error) {
           toast({
@@ -85,7 +85,7 @@ export function SidebarRight({ className }: SidebarProps) {
       },
       {
         onSuccess() {
-          refetch();
+          void refetch();
           setComment('');
         },
         onError(error) {
@@ -150,7 +150,7 @@ export function SidebarRight({ className }: SidebarProps) {
             <Vote
               points={post.points}
               postId={post.id}
-              voteData={post.votes[0] || undefined}
+              voteData={post.votes[0] ?? undefined}
             />
             <Separator className="my-6" />
 
@@ -188,7 +188,7 @@ export function SidebarRight({ className }: SidebarProps) {
                   handleDelete={handleDelete}
                   key={comment.id}
                   comment={comment}
-                  userVote={comment.votes[0]}
+                  userVote={comment.userVote}
                   user={comment.user}
                   loading={deletePending}
                 />

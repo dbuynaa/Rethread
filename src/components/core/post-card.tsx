@@ -12,7 +12,7 @@ import { Icons } from '../icons';
 import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
 import { useSession } from 'next-auth/react';
 import { Vote } from './vote';
-import { PostType } from '@/app/_components/postsContainer';
+import type { PostType } from '@/app/_components/postsContainer';
 extend(relativeTime);
 
 export const PostCard = ({

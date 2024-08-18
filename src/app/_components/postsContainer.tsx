@@ -6,7 +6,7 @@ import { useSearch } from '@/hooks/useSearch';
 import { PostCard } from '@/components/core';
 import { api } from '@/trpc/react';
 import { PageContainer } from '@/components/layout';
-import { Post } from '@prisma/client';
+import type { Post } from '@prisma/client';
 
 export type PostType = Post & {
   userVote?: { value: number };
