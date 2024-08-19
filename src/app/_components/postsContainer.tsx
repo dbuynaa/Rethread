@@ -33,6 +33,9 @@ export function PostsContainer({
   const handleUpdate = (id: string) => {
     console.log(id);
   };
+  const handleClick = (id: string) => {
+    setParam('post', id);
+  };
 
   return (
     <PageContainer>
@@ -51,7 +54,7 @@ export function PostsContainer({
             onUpdate={handleUpdate}
             key={post.id}
             post={post}
-            onClick={(id) => setParam('post', id)}
+            onClick={handleClick}
             isDeleting={isDeleting}
           />
         ))}

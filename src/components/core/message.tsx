@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { useSession } from 'next-auth/react';
+import { useVote } from '@/hooks/useVote';
 
 extend(relativeTime);
 
@@ -27,6 +28,7 @@ export const Comment = ({
   handleDelete,
 }: MessageProps) => {
   const { data: session } = useSession();
+  const { handleMessageVote } = useVote();
   return (
     <div key={comment.id} className="relative mb-4 flex items-start space-x-4">
       <Avatar className="mr-3 h-10 w-10">
@@ -46,7 +48,7 @@ export const Comment = ({
         <Vote
           points={comment.points}
           voteData={userVote}
-          messageId={comment.id}
+          handleVote={(value) => handleMessageVote(comment.id, value)}
         />
         {session?.user && session.user.id === user.id && (
           <Button

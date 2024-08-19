@@ -13,6 +13,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'; // Import the plugin
 import { useSession } from 'next-auth/react';
 import { Vote } from './vote';
 import type { PostType } from '@/app/_components/postsContainer';
+import { useVote } from '@/hooks/useVote';
 extend(relativeTime);
 
 export const PostCard = ({
@@ -29,6 +30,7 @@ export const PostCard = ({
   onDelete: (id: string) => void;
 }) => {
   const session = useSession();
+  const { handlePostVote } = useVote();
   return (
     <Card
       onClick={() => onClick(post.id)}
@@ -44,7 +46,11 @@ export const PostCard = ({
         </CardDescription>
       </CardContent>
       <CardFooter className="flex items-center gap-4">
-        <Vote voteData={post.userVote} postId={post.id} points={post.points} />
+        <Vote
+          voteData={post.userVote}
+          handleVote={(value) => handlePostVote(post.id, value)}
+          points={post.points}
+        />
         <CardDescription>{dayjs(post.createdAt).fromNow()}</CardDescription>
 
         {session.data?.user && session.data.user.id === post.createdById && (

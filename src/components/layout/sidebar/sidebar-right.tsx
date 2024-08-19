@@ -22,6 +22,7 @@ import { Comment, Vote } from '@/components/core';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { ResizablePanel } from '@/components/ui/resizable';
+import { useVote } from '@/hooks/useVote';
 
 interface SidebarProps {
   className?: string;
@@ -41,6 +42,8 @@ export function SidebarRight({ className }: SidebarProps) {
       enabled: !!postId,
     },
   );
+
+  const { handlePostVote } = useVote();
 
   const {
     data: comments,
@@ -149,7 +152,8 @@ export function SidebarRight({ className }: SidebarProps) {
             </div>
             <Vote
               points={post.points}
-              postId={post.id}
+              // postId={post.id}
+              handleVote={(value) => handlePostVote(post.id, value)}
               voteData={post.votes[0] ?? undefined}
             />
             <Separator className="my-6" />
