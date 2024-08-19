@@ -86,15 +86,20 @@ export const useVote = () => {
             return {
               ...message,
               points: message.points + value - (message.userVote?.value ?? 0),
-              userVote: {
-                value,
-                id: '',
-                userId: session.data?.user.id ?? '',
-                postId: null,
-                messageId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
+              userVote: message.userVote
+                ? {
+                    ...message.userVote,
+                    value,
+                  }
+                : {
+                    value,
+                    id: '',
+                    userId: session.data?.user.id ?? '',
+                    postId: null,
+                    messageId,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  },
             };
           }
           return message;
