@@ -3,6 +3,7 @@ import { api } from '@/trpc/react';
 import { useToast } from '@/components/ui/use-toast';
 import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type VoteFunction = (id: string, value: number) => void;
 
@@ -10,6 +11,8 @@ export const useVote = () => {
   const utils = api.useUtils();
   const { toast } = useToast();
   const session = useSession();
+  const params = useSearchParams();
+  const postId = params.get('post');
 
   const postVoteMutation = api.vote.voteMutation.useMutation({
     onMutate: async ({ postId, value }) => {
@@ -24,15 +27,17 @@ export const useVote = () => {
         return {
           ...prev,
           points: prev.points + value - (previousPost?.userVote?.value ?? 0),
-          userVote: {
-            value,
-            id: '',
-            userId: session.data?.user.id ?? '',
-            postId,
-            messageId: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
+          userVote: prev.userVote
+            ? { ...prev.userVote, value }
+            : {
+                value,
+                id: '',
+                messageId: null,
+                userId: session.data?.user.id ?? '',
+                postId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
         };
       });
 
@@ -77,40 +82,48 @@ export const useVote = () => {
     onMutate: async ({ messageId, value }) => {
       await utils.message.getMessages.cancel();
 
-      const previousMessages = utils.message.getMessages.getData();
-
-      utils.message.getMessages.setData(undefined, (prev) => {
-        if (!prev) return prev;
-        return prev.map((message) => {
-          if (message.id === messageId) {
-            return {
-              ...message,
-              points: message.points + value - (message.userVote?.value ?? 0),
-              userVote: message.userVote
-                ? {
-                    ...message.userVote,
-                    value,
-                  }
-                : {
-                    value,
-                    id: '',
-                    userId: session.data?.user.id ?? '',
-                    postId: null,
-                    messageId,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                  },
-            };
-          }
-          return message;
-        });
+      const previousMessages = utils.message.getMessages.getData({
+        postId: postId ?? undefined,
       });
+
+      utils.message.getMessages.setData(
+        { postId: postId ?? undefined },
+        (prev) => {
+          if (!prev) return prev;
+          return prev.map((message) => {
+            if (message.id === messageId) {
+              return {
+                ...message,
+                points: message.points + value - (message.userVote?.value ?? 0),
+                userVote: message.userVote
+                  ? {
+                      ...message.userVote,
+                      value,
+                    }
+                  : {
+                      value,
+                      id: '',
+                      userId: session.data?.user.id ?? '',
+                      postId: message.postId,
+                      messageId,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    },
+              };
+            }
+            return message;
+          });
+        },
+      );
 
       return { previousMessages };
     },
     onError: (err, { messageId }, context) => {
       if (messageId) {
-        utils.message.getMessages.setData(undefined, context?.previousMessages);
+        utils.message.getMessages.setData(
+          { postId: postId ?? undefined },
+          context?.previousMessages,
+        );
       }
       toast({
         title: 'Error',

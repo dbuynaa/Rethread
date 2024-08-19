@@ -152,9 +152,8 @@ export function SidebarRight({ className }: SidebarProps) {
             </div>
             <Vote
               points={post.points}
-              // postId={post.id}
               handleVote={(value) => handlePostVote(post.id, value)}
-              voteData={post.votes[0] ?? undefined}
+              voteData={post.userVote ?? undefined}
             />
             <Separator className="my-6" />
 

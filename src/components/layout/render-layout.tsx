@@ -18,9 +18,6 @@ export const RenderLayout = ({ children }: { children: React.ReactNode }) => {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <SidebarRight />
-      {/* <ResizablePanel defaultSize={0}>
-    
-      </ResizablePanel> */}
     </ResizablePanelGroup>
   );
 };

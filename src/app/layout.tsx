@@ -3,6 +3,7 @@ import '@/styles/globals.css';
 // import { GeistSans } from 'geist/font/sans';
 import { type Metadata } from 'next';
 import NextTopLoader from 'nextjs-toploader';
+import { Roboto } from 'next/font/google';
 
 import { Toaster } from '@/components/ui/toaster';
 import { getServerAuthSession } from '@/server/auth';
@@ -18,17 +19,19 @@ export const metadata: Metadata = {
   description: 'Created by Ben',
 };
 
+const inter = Roboto({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['300', '400', '500', '700'],
+});
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await getServerAuthSession();
 
   return (
-    <html
-      lang="en"
-      // className={`${GeistSans.variable}`}
-      suppressHydrationWarning={true}
-    >
+    <html lang="en" className={inter.className}>
       <body>
         <Providers session={session}>
           <NextTopLoader showSpinner={false} />

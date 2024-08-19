@@ -46,6 +46,7 @@ export const postRouter = createTRPCRouter({
           name: { contains: input?.search ?? '' },
         },
         include: {
+          createdBy: true,
           votes: {
             where: { userId: userId },
           },

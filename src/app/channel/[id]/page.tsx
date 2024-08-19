@@ -5,7 +5,6 @@ import { api, HydrateClient } from '@/trpc/server';
 
 export default function Page({ params }: { params: { id: string } }) {
   void api.post.getPosts.prefetch({ channelId: params.id });
-  void api.channel.channelDetail.prefetch({ id: params.id });
   return (
     <HydrateClient>
       <PageContainer scrollable={true}>
